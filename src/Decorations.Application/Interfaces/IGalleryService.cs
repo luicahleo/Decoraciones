@@ -9,6 +9,7 @@ namespace Decorations.Application.Interfaces
         Task<GalleryItemDto?> GetGalleryItemByIdAsync(int id);
         Task<GalleryItemDto> CreateGalleryItemAsync(GalleryItemDto dto);
         Task UpdateGalleryItemAsync(GalleryItemDto dto);
+        Task UpdateMediaAssetAsync(MediaAssetDto dto);
         Task DeleteGalleryItemAsync(int id);
         Task<MediaAssetDto> AddImageToGalleryItemAsync(int galleryItemId, Stream imageStream, string fileName, string altText);
         Task<MediaAssetDto> AddVideoToGalleryItemAsync(int galleryItemId, string youtubeVideoId, string altText);

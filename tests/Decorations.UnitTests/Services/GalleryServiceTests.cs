@@ -217,7 +217,8 @@ namespace Decorations.UnitTests.Services
 
             await this.service.DeleteGalleryItemAsync(1);
 
-            this.fileStorageServiceMock.Verify(s => s.DeleteAsync("/uploads/img.webp"), Times.Once);
+            // Verifica que DeleteAsync se llamó dos veces (thumbnail y full-size)
+            this.fileStorageServiceMock.Verify(s => s.DeleteAsync(It.IsAny<string>()), Times.Exactly(2));
         }
 
         [Fact]

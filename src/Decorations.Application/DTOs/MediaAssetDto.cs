@@ -12,5 +12,6 @@ namespace Decorations.Application.DTOs
         public string? YoutubeVideoId { get; set; }
         public string? AltText { get; set; }
         public int DisplayOrder { get; set; }
+        public bool IsFeatured { get; set; }
     }
 }

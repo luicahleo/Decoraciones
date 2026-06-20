@@ -63,6 +63,22 @@ namespace Decorations.Application.Services
             await this.galleryRepository.SaveChangesAsync();
         }
 
+        public async Task UpdateMediaAssetAsync(MediaAssetDto dto)
+        {
+            MediaAsset? asset = await this.mediaAssetRepository.GetByIdAsync(dto.Id);
+            if (asset == null)
+            {
+                return;
+            }
+
+            asset.IsFeatured = dto.IsFeatured;
+            asset.DisplayOrder = dto.DisplayOrder;
+            asset.AltText = dto.AltText;
+            
+            this.mediaAssetRepository.Update(asset);
+            await this.mediaAssetRepository.SaveChangesAsync();
+        }
+
         public async Task DeleteGalleryItemAsync(int id)
         {
             GalleryItem? item = await this.galleryRepository.GetByIdWithMediaAsync(id);
@@ -186,6 +202,7 @@ namespace Decorations.Application.Services
                 EventType = item.EventType,
                 IsActive = item.IsActive,
                 DisplayOrder = item.DisplayOrder,
+                ShowAsGrid = item.ShowAsGrid,
                 CreatedAt = item.CreatedAt,
                 MediaAssets = item.MediaAssets.Select(m => MapAssetToDto(m)).ToList()
             };
@@ -200,6 +217,7 @@ namespace Decorations.Application.Services
                 EventType = dto.EventType,
                 IsActive = dto.IsActive,
                 DisplayOrder = dto.DisplayOrder,
+                ShowAsGrid = dto.ShowAsGrid,
                 CreatedAt = DateTime.UtcNow
             };
         }
@@ -211,6 +229,7 @@ namespace Decorations.Application.Services
             entity.EventType = dto.EventType;
             entity.IsActive = dto.IsActive;
             entity.DisplayOrder = dto.DisplayOrder;
+            entity.ShowAsGrid = dto.ShowAsGrid;
         }
 
         private static MediaAssetDto MapAssetToDto(MediaAsset asset)
@@ -224,7 +243,8 @@ namespace Decorations.Application.Services
                 FullSizePath = asset.FullSizePath,
                 YoutubeVideoId = asset.YoutubeVideoId,
                 AltText = asset.AltText,
-                DisplayOrder = asset.DisplayOrder
+                DisplayOrder = asset.DisplayOrder,
+                IsFeatured = asset.IsFeatured
             };
         }
     }

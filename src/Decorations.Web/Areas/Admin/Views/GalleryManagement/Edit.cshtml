@@ -1,67 +1,295 @@
 @model Decorations.Web.ViewModels.Admin.GalleryItemFormViewModel
 @{ ViewData["Title"] = "Editar elemento"; }
 
-<div class="max-w-2xl">
+<div class="max-w-4xl">
     <div class="flex items-center gap-4 mb-6">
         <a asp-area="Admin" asp-controller="GalleryManagement" asp-action="Index" class="text-gray-500 hover:text-primary-600 transition-colors">← Volver</a>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Editar elemento</h1>
     </div>
 
-    <form asp-area="Admin" asp-controller="GalleryManagement" asp-action="Edit" method="post" enctype="multipart/form-data">
+    <form asp-area="Admin" asp-controller="GalleryManagement" asp-action="Edit" method="post" enctype="multipart/form-data" id="galleryForm">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Item.Id" />
-        <div class="card p-6 space-y-5">
-            <div>
-                <label asp-for="Item.Title" class="form-label">Título *</label>
-                <input asp-for="Item.Title" class="form-input" placeholder="Ej: Cumpleaños infantil" />
-                <span asp-validation-for="Item.Title" class="text-red-500 text-sm mt-1 block"></span>
-            </div>
-            <div>
-                <label asp-for="Item.Description" class="form-label">Descripción</label>
-                <textarea asp-for="Item.Description" rows="3" class="form-input resize-none"></textarea>
-            </div>
-            <div>
-                <label asp-for="Item.EventType" class="form-label">Tipo de evento</label>
-                <select asp-for="Item.EventType" class="form-input">
-                    <option value="">Seleccionar...</option>
-                    <option value="Cumpleaños">Cumpleaños</option>
-                    <option value="Bautizo">Bautizo</option>
-                    <option value="Comunión">Comunión</option>
-                    <option value="Boda">Boda</option>
-                    <option value="Otro">Otro</option>
-                </select>
-            </div>
-            <div>
-                <label asp-for="Item.DisplayOrder" class="form-label">Orden de visualización</label>
-                <input asp-for="Item.DisplayOrder" type="number" class="form-input" />
-            </div>
-            <div class="flex items-center gap-3">
-                <input asp-for="Item.IsActive" type="checkbox" class="w-4 h-4 rounded text-primary-600" />
-                <label asp-for="Item.IsActive" class="form-label mb-0">Publicar (visible en la web)</label>
+        <div class="card p-6 space-y-6">
+            <!-- Datos del elemento de galería -->
+            <div class="space-y-4">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información general</h2>
+                
+                <div>
+                    <label asp-for="Item.Title" class="form-label">Título *</label>
+                    <input asp-for="Item.Title" class="form-input" placeholder="Ej: Cumpleaños infantil" />
+                    <span asp-validation-for="Item.Title" class="text-red-500 text-sm mt-1 block"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="Item.Description" class="form-label">Descripción</label>
+                    <textarea asp-for="Item.Description" rows="3" class="form-input resize-none"></textarea>
+                </div>
+                
+                <div>
+                    <label asp-for="Item.EventType" class="form-label">Tipo de evento</label>
+                    <select asp-for="Item.EventType" class="form-input">
+                        <option value="">Seleccionar...</option>
+                        <option value="Cumpleaños">Cumpleaños</option>
+                        <option value="Bautizo">Bautizo</option>
+                        <option value="Comunión">Comunión</option>
+                        <option value="Boda">Boda</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label asp-for="Item.DisplayOrder" class="form-label">Orden de visualización</label>
+                    <input asp-for="Item.DisplayOrder" type="number" class="form-input" />
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <input asp-for="Item.IsActive" type="checkbox" class="w-4 h-4 rounded text-primary-600" />
+                    <label asp-for="Item.IsActive" class="form-label mb-0">Publicar (visible en la web)</label>
+                </div>
             </div>
 
             <hr class="border-gray-200 dark:border-gray-700" />
 
-            <div>
-                <label class="form-label">Imagen (se convertirá a WebP automáticamente)</label>
-                <input type="file" name="imageFile" accept="image/*" class="form-input" />
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Deja en blanco para mantener la imagen actual.</p>
+            <!-- Opciones de visualización -->
+            <div class="space-y-4">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Opciones de visualización</h2>
+                
+                <div class="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <input asp-for="Item.ShowAsGrid" type="checkbox" class="w-4 h-4 rounded text-primary-600" id="showAsGridCheckbox" />
+                    <div>
+                        <label for="showAsGridCheckbox" class="form-label mb-0 font-medium">Mostrar como galería (grid)</label>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Desactivado: Muestra una imagen de portada / Activado: Muestra todas las imágenes en formato grid</p>
+                    </div>
+                </div>
             </div>
 
-            <div>
-                <label asp-for="YoutubeVideoId" class="form-label">ID de vídeo de YouTube</label>
-                <input asp-for="YoutubeVideoId" class="form-input" placeholder="Ej: dQw4w9WgXcQ" />
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Solo el ID del vídeo (la parte después de ?v= en la URL).</p>
-            </div>
-            <div>
-                <label asp-for="VideoAltText" class="form-label">Descripción del vídeo</label>
-                <input asp-for="VideoAltText" class="form-input" placeholder="Descripción del vídeo" />
+            <hr class="border-gray-200 dark:border-gray-700" />
+
+            <!-- Sección de imágenes existentes -->
+            @if (Model?.Item?.MediaAssets != null && Model.Item.MediaAssets.Count > 0)
+            {
+                <div class="space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Imágenes actuales</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        @foreach (var asset in Model.Item.MediaAssets.Where(m => m.MediaType == Decorations.Domain.Enums.MediaType.Image))
+                        {
+                            <div class="relative group">
+                                <div class="relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700" style="aspect-ratio: 1;">
+                                    <img src="/@asset.ThumbnailPath" alt="@asset.AltText" class="w-full h-full object-cover" />
+                                    @if (asset.IsFeatured)
+                                    {
+                                        <div class="absolute inset-0 ring-4 ring-amber-500"></div>
+                                    }
+                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                        @if (!asset.IsFeatured)
+                                        {
+                                            <form method="post" asp-area="Admin" asp-controller="GalleryManagement" asp-action="ToggleFeatured" style="display: inline;">
+                                                <input type="hidden" name="mediaAssetId" value="@asset.Id" />
+                                                <input type="hidden" name="galleryItemId" value="@Model.Item.Id" />
+                                                <button type="submit" class="btn btn-sm btn-primary">☆ Portada</button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span class="btn btn-sm btn-success">★ Portada</span>
+                                        }
+                                        <form method="post" asp-area="Admin" asp-controller="GalleryManagement" asp-action="DeleteMedia" style="display: inline;">
+                                            <input type="hidden" name="mediaAssetId" value="@asset.Id" />
+                                            <input type="hidden" name="galleryItemId" value="@Model.Item.Id" />
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar esta imagen?')">✕ Eliminar</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <hr class="border-gray-200 dark:border-gray-700" />
+            }
+
+            <!-- Sección de carga de nuevas imágenes -->
+            <div class="space-y-4">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Agregar imágenes</h2>
+                
+                <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-primary-500 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" id="dropZone">
+                    <div>
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v4a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32 0l-3.172-3.172a4 4 0 00-5.656 0L28 28M12 28l3.172-3.172a4 4 0 015.656 0L28 28"></path>
+                        </svg>
+                        <p class="mt-2 text-sm font-medium text-gray-900 dark:text-white">Arrastra imágenes aquí o haz clic para seleccionar</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">PNG, JPG, WebP hasta 10 MB (se convertirán a WebP automáticamente)</p>
+                    </div>
+                    <input type="file" name="imageFiles" accept="image/*" multiple class="hidden" id="fileInput" />
+                </div>
+
+                <!-- Vista previa de imágenes cargadas -->
+                <div id="previewContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Las imágenes se agregarán aquí dinámicamente -->
+                </div>
             </div>
 
-            <div class="flex gap-3 pt-2">
+            <!-- Vídeos -->
+            <hr class="border-gray-200 dark:border-gray-700" />
+            
+            <div class="space-y-4">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Contenido adicional (opcional)</h2>
+                
+                <div>
+                    <label asp-for="YoutubeVideoId" class="form-label">ID de vídeo de YouTube</label>
+                    <input asp-for="YoutubeVideoId" class="form-input" placeholder="Ej: dQw4w9WgXcQ" />
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Solo el ID del vídeo (la parte después de ?v= en la URL).</p>
+                </div>
+                
+                <div>
+                    <label asp-for="VideoAltText" class="form-label">Descripción del vídeo</label>
+                    <input asp-for="VideoAltText" class="form-input" placeholder="Descripción del vídeo" />
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-4">
                 <button type="submit" class="btn-primary">Guardar cambios</button>
                 <a asp-area="Admin" asp-controller="GalleryManagement" asp-action="Index" class="btn-secondary">Cancelar</a>
             </div>
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const form = document.getElementById('galleryForm');
+        
+        let uploadedFiles = [];
+
+        // Drag & drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.add('border-primary-500', 'bg-primary-50');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.remove('border-primary-500', 'bg-primary-50');
+            });
+        });
+
+        dropZone.addEventListener('drop', handleDrop);
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            handleFiles(e.target.files);
+        }
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (!file.type.startsWith('image/')) continue;
+                if (file.size > 10 * 1024 * 1024) {
+                    alert(`${file.name} es demasiado grande (máximo 10 MB)`);
+                    continue;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const fileData = {
+                        file: file,
+                        base64: e.target.result,
+                        isFeatured: false
+                    };
+                    uploadedFiles.push(fileData);
+                    renderPreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function renderPreview() {
+            previewContainer.innerHTML = '';
+            
+            uploadedFiles.forEach((fileData, index) => {
+                const preview = document.createElement('div');
+                preview.className = 'relative group';
+                preview.innerHTML = `
+                    <div class="relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700" style="aspect-ratio: 1;">
+                        <img src="${fileData.base64}" alt="${fileData.file.name}" class="w-full h-full object-cover" />
+                        ${fileData.isFeatured ? '<div class="absolute inset-0 ring-4 ring-amber-500"></div>' : ''}
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            <button type="button" class="btn btn-sm btn-primary" onclick="toggleFeatured(${index})">
+                                ${fileData.isFeatured ? '★ Portada' : '☆ Portada'}
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="removeFile(${index})">
+                                ✕ Eliminar
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 truncate">${fileData.file.name}</p>
+                `;
+                previewContainer.appendChild(preview);
+            });
+        }
+
+        function toggleFeatured(index) {
+            uploadedFiles[index].isFeatured = !uploadedFiles[index].isFeatured;
+            renderPreview();
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            renderPreview();
+        }
+
+        // Enviar archivos al servidor
+        form.addEventListener('submit', async (e) => {
+            // Si hay archivos nuevos, procesarlos de forma custom
+            if (uploadedFiles.length > 0) {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+
+                // Agregar archivos nuevos
+                uploadedFiles.forEach((fileData) => {
+                    formData.append('imageFiles', fileData.file);
+                });
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        window.location.href = '@Url.Action("Index", new { area = "Admin", controller = "GalleryManagement" })';
+                    } else {
+                        const errorText = await response.text();
+                        alert('Error al guardar: ' + errorText);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al enviar los datos');
+                }
+            }
+            // Si no hay archivos nuevos, dejar que el formulario se envíe normalmente
+        });
+    </script>
+}

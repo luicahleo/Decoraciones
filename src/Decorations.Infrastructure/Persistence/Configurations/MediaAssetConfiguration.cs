@@ -14,6 +14,7 @@ namespace Decorations.Infrastructure.Persistence.Configurations
             builder.Property(m => m.FullSizePath).HasMaxLength(500);
             builder.Property(m => m.YoutubeVideoId).HasMaxLength(50);
             builder.Property(m => m.AltText).HasMaxLength(200);
+            builder.Property(m => m.IsFeatured).HasDefaultValue(false);
         }
     }
 }

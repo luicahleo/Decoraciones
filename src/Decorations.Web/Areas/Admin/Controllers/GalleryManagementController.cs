@@ -36,12 +36,12 @@ namespace Decorations.Web.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(GalleryItemFormViewModel viewModel, IFormFile? imageFile)
+        public async Task<IActionResult> Create(GalleryItemFormViewModel viewModel, IFormFileCollection? imageFiles)
         {
             this.logger.LogDebug("GalleryManagementController.Create - Iniciando creación. ModelState válido: {IsValid}", this.ModelState.IsValid);
             this.logger.LogDebug("GalleryManagementController.Create - Título recibido: '{Title}'", viewModel?.Item?.Title);
-            this.logger.LogDebug("GalleryManagementController.Create - Archivo recibido: {FileName} ({FileSize} bytes)", 
-                imageFile?.FileName, imageFile?.Length);
+            this.logger.LogDebug("GalleryManagementController.Create - ShowAsGrid: {ShowAsGrid}", viewModel?.Item?.ShowAsGrid);
+            this.logger.LogDebug("GalleryManagementController.Create - Archivos recibidos: {FileCount}", imageFiles?.Count ?? 0);
 
             if (!this.ModelState.IsValid)
             {
@@ -50,27 +50,49 @@ namespace Decorations.Web.Areas.Admin.Controllers
                 return this.View(viewModel);
             }
 
+            // Crear elemento de galería
             GalleryItemDto createdItem = await this.galleryService.CreateGalleryItemAsync(viewModel.Item);
             this.logger.LogInformation("GalleryManagementController.Create - Elemento creado con ID: {ItemId}", createdItem.Id);
 
-            if (imageFile != null && imageFile.Length > 0)
+            // Procesar múltiples imágenes
+            if (imageFiles != null && imageFiles.Count > 0)
             {
-                try
+                string? featuredImageIndexStr = this.HttpContext.Request.Form["featuredImageIndex"];
+                int.TryParse(featuredImageIndexStr, out int featuredImageIndex);
+
+                for (int index = 0; index < imageFiles.Count; index++)
                 {
-                    using Stream stream = imageFile.OpenReadStream();
-                    MediaAssetDto asset = await this.galleryService.AddImageToGalleryItemAsync(
-                        createdItem.Id,
-                        stream,
-                        imageFile.FileName,
-                        viewModel.Item.Title);
-                    this.logger.LogInformation("GalleryManagementController.Create - Imagen guardada: {FilePath}", asset.FullSizePath);
-                }
-                catch (Exception exception)
-                {
-                    this.logger.LogError(exception, "GalleryManagementController.Create - Error al guardar imagen");
+                    IFormFile imageFile = imageFiles[index];
+                    
+                    if (imageFile.Length == 0) continue;
+
+                    try
+                    {
+                        using Stream stream = imageFile.OpenReadStream();
+                        MediaAssetDto asset = await this.galleryService.AddImageToGalleryItemAsync(
+                            createdItem.Id,
+                            stream,
+                            imageFile.FileName,
+                            viewModel.Item.Title);
+                        
+                        // Marcar como portada si es la imagen seleccionada
+                        if (index == featuredImageIndex)
+                        {
+                            asset.IsFeatured = true;
+                            await this.galleryService.UpdateMediaAssetAsync(asset);
+                            this.logger.LogInformation("GalleryManagementController.Create - Imagen marcada como portada: {FilePath}", asset.FullSizePath);
+                        }
+
+                        this.logger.LogInformation("GalleryManagementController.Create - Imagen guardada: {FilePath}", asset.FullSizePath);
+                    }
+                    catch (Exception exception)
+                    {
+                        this.logger.LogError(exception, "GalleryManagementController.Create - Error al guardar imagen: {FileName}", imageFile.FileName);
+                    }
                 }
             }
 
+            // Agregar vídeo si se proporciona
             if (!string.IsNullOrWhiteSpace(viewModel.YoutubeVideoId))
             {
                 await this.galleryService.AddVideoToGalleryItemAsync(
@@ -98,7 +120,7 @@ namespace Decorations.Web.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(GalleryItemFormViewModel viewModel, IFormFile? imageFile)
+        public async Task<IActionResult> Edit(GalleryItemFormViewModel viewModel, IFormFileCollection? imageFiles)
         {
             if (!this.ModelState.IsValid)
             {
@@ -107,16 +129,34 @@ namespace Decorations.Web.Areas.Admin.Controllers
 
             await this.galleryService.UpdateGalleryItemAsync(viewModel.Item);
 
-            if (imageFile != null && imageFile.Length > 0)
+            // Procesar múltiples imágenes nuevas
+            if (imageFiles != null && imageFiles.Count > 0)
             {
-                using Stream stream = imageFile.OpenReadStream();
-                await this.galleryService.AddImageToGalleryItemAsync(
-                    viewModel.Item.Id,
-                    stream,
-                    imageFile.FileName,
-                    viewModel.Item.Title);
+                for (int index = 0; index < imageFiles.Count; index++)
+                {
+                    IFormFile imageFile = imageFiles[index];
+                    
+                    if (imageFile.Length == 0) continue;
+
+                    try
+                    {
+                        using Stream stream = imageFile.OpenReadStream();
+                        await this.galleryService.AddImageToGalleryItemAsync(
+                            viewModel.Item.Id,
+                            stream,
+                            imageFile.FileName,
+                            viewModel.Item.Title);
+                        
+                        this.logger.LogInformation("GalleryManagementController.Edit - Imagen guardada: {FileName}", imageFile.FileName);
+                    }
+                    catch (Exception exception)
+                    {
+                        this.logger.LogError(exception, "GalleryManagementController.Edit - Error al guardar imagen: {FileName}", imageFile.FileName);
+                    }
+                }
             }
 
+            // Agregar vídeo si se proporciona
             if (!string.IsNullOrWhiteSpace(viewModel.YoutubeVideoId))
             {
                 await this.galleryService.AddVideoToGalleryItemAsync(

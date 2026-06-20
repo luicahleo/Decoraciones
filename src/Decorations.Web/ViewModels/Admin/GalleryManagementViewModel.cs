@@ -16,5 +16,17 @@ namespace Decorations.Web.ViewModels.Admin
 
         public string? YoutubeVideoId { get; set; }
         public string? VideoAltText { get; set; }
+        
+        // Para soporte multi-upload de imágenes
+        public List<MediaFileViewModel> UploadedFiles { get; set; } = new();
+    }
+
+    public class MediaFileViewModel
+    {
+        public string FileName { get; set; } = string.Empty;
+        public long FileSize { get; set; }
+        public string Base64Preview { get; set; } = string.Empty;
+        public bool IsFeatured { get; set; }
+        public int DisplayOrder { get; set; }
     }
 }

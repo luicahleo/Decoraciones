@@ -13,6 +13,7 @@ namespace Decorations.Application.DTOs
         public string? EventType { get; set; }
         public bool IsActive { get; set; }
         public int DisplayOrder { get; set; }
+        public bool ShowAsGrid { get; set; }
         public DateTime CreatedAt { get; set; }
         public IReadOnlyList<MediaAssetDto> MediaAssets { get; set; } = new List<MediaAssetDto>();
     }
