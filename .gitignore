@@ -27,8 +27,8 @@ publish/
 ## Uploads y media generados
 src/Decorations.Web/wwwroot/uploads/
 
-## Tailwind output (se genera con npm run build:css)
-src/Decorations.Web/wwwroot/css/output.css
+## Tailwind input (solo el output compilado debe versionarse)
+src/Decorations.Web/wwwroot/css/input.css
 
 ## Environment-specific
 appsettings.Production.json
