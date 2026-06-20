@@ -4,6 +4,7 @@ obj/
 
 ## Node
 node_modules/
+**/node_modules/
 npm-debug.log*
 
 ## Logs (generados en runtime)
