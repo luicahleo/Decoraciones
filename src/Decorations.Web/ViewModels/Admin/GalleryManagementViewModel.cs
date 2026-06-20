@@ -1,4 +1,5 @@
 using Decorations.Application.DTOs;
+using System.ComponentModel.DataAnnotations;
 
 namespace Decorations.Web.ViewModels.Admin
 {
@@ -10,8 +11,10 @@ namespace Decorations.Web.ViewModels.Admin
 
     public class GalleryItemFormViewModel
     {
+        [Required(ErrorMessage = "El título es obligatorio")]
         public GalleryItemDto Item { get; set; } = new GalleryItemDto();
-        public string YoutubeVideoId { get; set; } = string.Empty;
-        public string VideoAltText { get; set; } = string.Empty;
+
+        public string? YoutubeVideoId { get; set; }
+        public string? VideoAltText { get; set; }
     }
 }

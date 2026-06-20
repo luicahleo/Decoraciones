@@ -25,7 +25,13 @@ try
 
     WebApplication app = builder.Build();
 
-    await DatabaseSeeder.SeedAsync(app.Services, app.Configuration);
+    EnsureLogsDirectoryExists(app);
+
+    // Seed solo en desarrollo
+    if (app.Environment.IsDevelopment())
+    {
+        await DatabaseSeeder.SeedAsync(app.Services, app.Configuration);
+    }
 
     app.UseMiddleware<GlobalExceptionMiddleware>();
 
@@ -57,4 +63,41 @@ catch (Exception exception)
 finally
 {
     Log.CloseAndFlush();
+}
+
+void EnsureLogsDirectoryExists(WebApplication application)
+{
+    string logsDirectory = Path.Combine(application.Environment.ContentRootPath, "logs");
+    
+    if (!Directory.Exists(logsDirectory))
+    {
+        Directory.CreateDirectory(logsDirectory);
+        Log.Information("Program.cs - Directorio de logs creado en: {LogsPath}", logsDirectory);
+    }
+    else
+    {
+        ClearLogsDirectory(logsDirectory);
+    }
+}
+
+void ClearLogsDirectory(string logsDirectory)
+{
+    try
+    {
+        string[] logFiles = Directory.GetFiles(logsDirectory, "log-*.txt");
+        
+        foreach (string file in logFiles)
+        {
+            File.Delete(file);
+        }
+
+        if (logFiles.Length > 0)
+        {
+            Log.Information("Program.cs - {LogCount} archivos de logs diarios eliminados para iniciar sesión limpia", logFiles.Length);
+        }
+    }
+    catch (Exception exception)
+    {
+        Log.Warning(exception, "Program.cs - Error al limpiar directorio de logs");
+    }
 }

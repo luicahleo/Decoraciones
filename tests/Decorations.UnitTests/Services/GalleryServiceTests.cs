@@ -200,5 +200,154 @@ namespace Decorations.UnitTests.Services
 
             this.fileStorageServiceMock.Verify(s => s.DeleteAsync("/uploads/img.webp"), Times.Once);
         }
+
+        [Fact]
+        public async Task CreateGalleryItemAsync_WithValidDto_SavesSuccessfully()
+        {
+            GalleryItemDto createDto = new GalleryItemDto
+            {
+                Title = "Fiesta nueva",
+                Description = "Decoración completa",
+                EventType = "Cumpleaños",
+                IsActive = true,
+                DisplayOrder = 0
+            };
+
+            this.galleryRepositoryMock.Setup(r => r.AddAsync(It.IsAny<GalleryItem>())).Returns(Task.CompletedTask);
+            this.galleryRepositoryMock.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
+
+            GalleryItemDto result = await this.service.CreateGalleryItemAsync(createDto);
+
+            Assert.NotNull(result);
+            Assert.Equal(createDto.Title, result.Title);
+            this.galleryRepositoryMock.Verify(r => r.AddAsync(It.IsAny<GalleryItem>()), Times.Once);
+            this.galleryRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateGalleryItemAsync_WithOnlyTitle_CreatesSuccessfully()
+        {
+            GalleryItemDto createDto = new GalleryItemDto
+            {
+                Title = "Título solo",
+                Description = null,
+                EventType = null,
+                IsActive = false,
+                DisplayOrder = 0
+            };
+
+            this.galleryRepositoryMock.Setup(r => r.AddAsync(It.IsAny<GalleryItem>())).Returns(Task.CompletedTask);
+            this.galleryRepositoryMock.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
+
+            GalleryItemDto result = await this.service.CreateGalleryItemAsync(createDto);
+
+            Assert.NotNull(result);
+            Assert.Equal("Título solo", result.Title);
+            Assert.Null(result.Description);
+            Assert.Null(result.EventType);
+        }
+
+        [Fact]
+        public async Task GetAllGalleryItemsAsync_ReturnsAllItems()
+        {
+            IReadOnlyList<GalleryItem> items = new List<GalleryItem>
+            {
+                new GalleryItem { Id = 1, Title = "Fiesta 1", IsActive = true, MediaAssets = new List<MediaAsset>() },
+                new GalleryItem { Id = 2, Title = "Fiesta 2", IsActive = false, MediaAssets = new List<MediaAsset>() },
+                new GalleryItem { Id = 3, Title = "Fiesta 3", IsActive = true, MediaAssets = new List<MediaAsset>() }
+            };
+            this.galleryRepositoryMock.Setup(r => r.GetAllWithMediaAsync()).ReturnsAsync(items);
+
+            IReadOnlyList<GalleryItemDto> result = await this.service.GetAllGalleryItemsAsync();
+
+            Assert.Equal(3, result.Count);
+        }
+
+        [Fact]
+        public async Task UpdateGalleryItemAsync_WithValidDto_UpdatesSuccessfully()
+        {
+            int itemId = 1;
+            GalleryItem existingItem = new GalleryItem
+            {
+                Id = itemId,
+                Title = "Título antiguo",
+                Description = "Descripción antigua",
+                EventType = "Bautizo",
+                IsActive = true,
+                DisplayOrder = 0,
+                CreatedAt = System.DateTime.UtcNow,
+                MediaAssets = new List<MediaAsset>()
+            };
+
+            GalleryItemDto updateDto = new GalleryItemDto
+            {
+                Id = itemId,
+                Title = "Título actualizado",
+                Description = "Descripción nueva",
+                EventType = "Boda",
+                IsActive = false,
+                DisplayOrder = 5
+            };
+
+            this.galleryRepositoryMock.Setup(r => r.GetByIdAsync(itemId)).ReturnsAsync(existingItem);
+            this.galleryRepositoryMock.Setup(r => r.Update(It.IsAny<GalleryItem>())).Callback<GalleryItem>(item =>
+            {
+                Assert.Equal("Título actualizado", item.Title);
+                Assert.Equal("Descripción nueva", item.Description);
+                Assert.Equal("Boda", item.EventType);
+                Assert.False(item.IsActive);
+            });
+            this.galleryRepositoryMock.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
+
+            await this.service.UpdateGalleryItemAsync(updateDto);
+
+            this.galleryRepositoryMock.Verify(r => r.GetByIdAsync(itemId), Times.Once);
+            this.galleryRepositoryMock.Verify(r => r.Update(It.IsAny<GalleryItem>()), Times.Once);
+            this.galleryRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateGalleryItemAsync_WithNonExistentId_DoesNotThrow()
+        {
+            GalleryItemDto updateDto = new GalleryItemDto
+            {
+                Id = 999,
+                Title = "No existe",
+                IsActive = true,
+                DisplayOrder = 0
+            };
+
+            this.galleryRepositoryMock.Setup(r => r.GetByIdAsync(999)).ReturnsAsync((GalleryItem?)null);
+
+            await this.service.UpdateGalleryItemAsync(updateDto);
+
+            this.galleryRepositoryMock.Verify(r => r.Update(It.IsAny<GalleryItem>()), Times.Never);
+            this.galleryRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Never);
+        }
+
+        [Fact]
+        public async Task GetGalleryItemByIdAsync_WhenFound_ReturnsItemDto()
+        {
+            GalleryItem item = new GalleryItem
+            {
+                Id = 1,
+                Title = "Fiesta encontrada",
+                Description = "Desc test",
+                EventType = "Comunión",
+                IsActive = true,
+                DisplayOrder = 2,
+                CreatedAt = System.DateTime.UtcNow,
+                MediaAssets = new List<MediaAsset>()
+            };
+            this.galleryRepositoryMock.Setup(r => r.GetByIdWithMediaAsync(1)).ReturnsAsync(item);
+
+            GalleryItemDto? result = await this.service.GetGalleryItemByIdAsync(1);
+
+            Assert.NotNull(result);
+            Assert.Equal(1, result.Id);
+            Assert.Equal("Fiesta encontrada", result.Title);
+            Assert.Equal("Desc test", result.Description);
+            Assert.Equal("Comunión", result.EventType);
+        }
     }
 }
