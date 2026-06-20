@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html lang="es"
+      x-data="{ darkMode: localStorage.getItem('theme') === 'dark', mobileMenu: false }"
+      :class="{ 'dark': darkMode }"
+      x-init="$watch('darkMode', val => localStorage.setItem('theme', val ? 'dark' : 'light'))">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @await Html.PartialAsync("_SeoMeta", Model as Decorations.Web.ViewModels.SeoViewModel ?? new Decorations.Web.ViewModels.SeoViewModel())
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-300 font-sans">
+    <header class="sticky top-0 z-50 bg-white/90 dark:bg-gray-950/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a asp-controller="Home" asp-action="Index" class="flex items-center gap-2 text-xl font-bold text-primary-600 dark:text-primary-400">
+                    ✨ Decoraciones
+                </a>
+                <div class="hidden md:flex items-center gap-8">
+                    <a asp-controller="Home" asp-action="Index" class="nav-link">Inicio</a>
+                    <a asp-controller="Gallery" asp-action="Index" class="nav-link">Galería</a>
+                    <a asp-controller="Contact" asp-action="Index" class="nav-link">Contacto</a>
+                    <button @@click="darkMode = !darkMode" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
+                        <svg x-show="!darkMode" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                        <svg x-show="darkMode" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    </button>
+                </div>
+                <div class="md:hidden flex items-center gap-2">
+                    <button @@click="mobileMenu = !mobileMenu" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    </button>
+                </div>
+            </div>
+            <div x-show="mobileMenu" x-transition class="md:hidden pb-4 space-y-2">
+                <a asp-controller="Home" asp-action="Index" class="block py-2 nav-link">Inicio</a>
+                <a asp-controller="Gallery" asp-action="Index" class="block py-2 nav-link">Galería</a>
+                <a asp-controller="Contact" asp-action="Index" class="block py-2 nav-link">Contacto</a>
+            </div>
+        </nav>
+    </header>
+    <main>@RenderBody()</main>
+    <footer class="bg-gray-950 text-gray-400 py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-primary-400 font-bold text-lg mb-2">✨ Decoraciones Especiales</p>
+            <p class="text-sm">© @DateTime.Now.Year Todos los derechos reservados.</p>
+        </div>
+    </footer>
+    @await Html.PartialAsync("_WhatsAppButton")
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

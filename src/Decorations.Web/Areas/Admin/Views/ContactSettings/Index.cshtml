@@ -1,0 +1,45 @@
+@model Decorations.Application.DTOs.ContactSettingsDto
+@{ ViewData["Title"] = "Configuración de Contacto"; }
+
+<div class="max-w-2xl">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Configuración de Contacto</h1>
+
+    <form asp-area="Admin" asp-controller="ContactSettings" asp-action="Index" method="post">
+        @Html.AntiForgeryToken()
+        <input asp-for="Id" type="hidden" />
+        <div class="card p-6 space-y-5">
+            <div>
+                <label asp-for="BusinessName" class="form-label">Nombre del negocio</label>
+                <input asp-for="BusinessName" class="form-input" placeholder="Mi Negocio de Decoraciones" />
+            </div>
+            <div>
+                <label asp-for="WhatsAppNumber" class="form-label">Número de WhatsApp</label>
+                <input asp-for="WhatsAppNumber" class="form-input" placeholder="+34 600 000 000" />
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Incluye el prefijo internacional, ej: +34600000000</p>
+            </div>
+            <div>
+                <label asp-for="Email" class="form-label">Email de contacto</label>
+                <input asp-for="Email" type="email" class="form-input" placeholder="info@minegocio.com" />
+            </div>
+            <div>
+                <label asp-for="InstagramUrl" class="form-label">URL de Instagram</label>
+                <input asp-for="InstagramUrl" class="form-input" placeholder="https://instagram.com/tu_negocio" />
+            </div>
+            <div>
+                <label asp-for="FacebookUrl" class="form-label">URL de Facebook</label>
+                <input asp-for="FacebookUrl" class="form-input" placeholder="https://facebook.com/tu_negocio" />
+            </div>
+            <div>
+                <label asp-for="Address" class="form-label">Dirección</label>
+                <input asp-for="Address" class="form-input" placeholder="Calle Ejemplo, 1, Ciudad" />
+            </div>
+            <div>
+                <label asp-for="BusinessHours" class="form-label">Horario de atención</label>
+                <input asp-for="BusinessHours" class="form-input" placeholder="Lunes a Viernes: 9:00 - 18:00" />
+            </div>
+            <div class="pt-2">
+                <button type="submit" class="btn-primary">Guardar cambios</button>
+            </div>
+        </div>
+    </form>
+</div>

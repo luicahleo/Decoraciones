@@ -1,0 +1,77 @@
+﻿@model Decorations.Web.ViewModels.HomeViewModel
+
+<section class="relative bg-gradient-to-br from-primary-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-24 px-4">
+    <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">
+            Creamos momentos <span class="text-primary-600 dark:text-primary-400">inolvidables</span>
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto">
+            Decoraciones únicas y personalizadas para tus eventos más especiales. Cumpleaños, bautizos, comuniones y mucho más.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a asp-controller="Contact" asp-action="Index" class="btn-primary inline-block">Solicitar Presupuesto</a>
+            <a asp-controller="Gallery" asp-action="Index" class="btn-secondary inline-block">Ver Galería</a>
+        </div>
+    </div>
+</section>
+
+@if (Model.Services.Any())
+{
+    <section class="py-20 px-4 bg-white dark:bg-gray-950">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="section-title">Nuestros Servicios</h2>
+            <p class="section-subtitle">Ofrecemos una amplia variedad de servicios de decoración para hacer de tu evento algo único.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                @foreach (var service in Model.Services)
+                {
+                    <div class="card p-8 text-center">
+                        @if (!string.IsNullOrEmpty(service.IconCssClass))
+                        {
+                            <div class="text-4xl mb-4">@service.IconCssClass</div>
+                        }
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">@service.Title</h3>
+                        <p class="text-gray-600 dark:text-gray-400">@service.Description</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+@if (Model.GalleryPreview.Any())
+{
+    <section class="py-20 px-4 bg-gray-50 dark:bg-gray-900">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="section-title">Nuestros Trabajos</h2>
+            <p class="section-subtitle">Una muestra de las decoraciones que hemos creado con amor para nuestros clientes.</p>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
+                @foreach (var item in Model.GalleryPreview)
+                {
+                    var firstImage = item.MediaAssets.FirstOrDefault(m => m.MediaType == Decorations.Domain.Enums.MediaType.Image);
+                    if (firstImage != null)
+                    {
+                        <div class="overflow-hidden rounded-2xl aspect-square">
+                            <img src="@firstImage.FilePath"
+                                 alt="@firstImage.AltText"
+                                 loading="lazy"
+                                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                        </div>
+                    }
+                }
+            </div>
+            <div class="text-center">
+                <a asp-controller="Gallery" asp-action="Index" class="btn-primary inline-block">Ver Galería Completa</a>
+            </div>
+        </div>
+    </section>
+}
+
+<section class="py-20 px-4 bg-primary-600 dark:bg-primary-800">
+    <div class="max-w-3xl mx-auto text-center text-white">
+        <h2 class="text-4xl font-bold mb-4">¿Listo para crear algo mágico?</h2>
+        <p class="text-primary-100 text-lg mb-8">Cuéntanos sobre tu evento y te prepararemos un presupuesto personalizado sin compromiso.</p>
+        <a asp-controller="Contact" asp-action="Index" class="bg-white text-primary-600 font-bold py-3 px-8 rounded-xl hover:bg-primary-50 transition-colors duration-200 inline-block">
+            Contactar Ahora
+        </a>
+    </div>
+</section>

@@ -1,0 +1,61 @@
+@model Decorations.Web.ViewModels.GalleryViewModel
+
+<section class="py-20 px-4 bg-white dark:bg-gray-950"
+         x-data="{ lightbox: false, currentImage: '', currentAlt: '' }">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="section-title">Nuestra Galería</h1>
+        <p class="section-subtitle">Inspírate con nuestros trabajos. Cada evento es único y especial.</p>
+
+        @if (!Model.GalleryItems.Any())
+        {
+            <div class="text-center py-16">
+                <p class="text-gray-500 dark:text-gray-400 text-lg">Próximamente nuevas decoraciones.</p>
+            </div>
+        }
+        else
+        {
+            <div class="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+                @foreach (var item in Model.GalleryItems)
+                {
+                    @foreach (var media in item.MediaAssets)
+                    {
+                        if (media.MediaType == Decorations.Domain.Enums.MediaType.Image)
+                        {
+                            <div class="break-inside-avoid overflow-hidden rounded-2xl cursor-pointer group"
+                                 @@click="lightbox = true; currentImage = '@media.FilePath'; currentAlt = '@Html.Raw(media.AltText.Replace("'", "\\'"))'">
+                                <img src="@media.FilePath"
+                                     alt="@media.AltText"
+                                     loading="lazy"
+                                     class="w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="break-inside-avoid rounded-2xl overflow-hidden aspect-video">
+                                <iframe src="https://www.youtube.com/embed/@media.YoutubeVideoId"
+                                        title="@media.AltText"
+                                        class="w-full h-full"
+                                        loading="lazy"
+                                        allowfullscreen></iframe>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        }
+    </div>
+
+    <div x-show="lightbox"
+         x-transition.opacity
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+         @@click.self="lightbox = false"
+         @@keydown.escape.window="lightbox = false">
+        <div class="relative max-w-5xl max-h-[90vh]">
+            <img :src="currentImage" :alt="currentAlt" class="max-w-full max-h-[85vh] rounded-2xl object-contain" />
+            <button @@click="lightbox = false"
+                    class="absolute top-2 right-2 bg-black/50 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-black/80 transition-colors">
+                ✕
+            </button>
+        </div>
+    </div>
+</section>

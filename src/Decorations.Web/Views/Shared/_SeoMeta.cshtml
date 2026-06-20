@@ -1,0 +1,28 @@
+@model Decorations.Web.ViewModels.SeoViewModel
+@{
+    string pageTitle = Model?.PageTitle ?? "Decoraciones Especiales";
+    string metaDescription = Model?.MetaDescription ?? string.Empty;
+    string ogTitle = string.IsNullOrEmpty(Model?.OgTitle) ? pageTitle : Model.OgTitle;
+    string ogDescription = string.IsNullOrEmpty(Model?.OgDescription) ? metaDescription : Model.OgDescription;
+    string ogImage = Model?.OgImage ?? string.Empty;
+    string canonicalUrl = Model?.CanonicalUrl ?? string.Empty;
+}
+<title>@pageTitle</title>
+@if (!string.IsNullOrEmpty(metaDescription))
+{
+    <meta name="description" content="@metaDescription" />
+}
+<meta property="og:title" content="@ogTitle" />
+<meta property="og:description" content="@ogDescription" />
+<meta property="og:type" content="website" />
+@if (!string.IsNullOrEmpty(ogImage))
+{
+    <meta property="og:image" content="@ogImage" />
+}
+@if (!string.IsNullOrEmpty(canonicalUrl))
+{
+    <link rel="canonical" href="@canonicalUrl" />
+}
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="@ogTitle" />
+<meta name="twitter:description" content="@ogDescription" />

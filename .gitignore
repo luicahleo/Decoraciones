@@ -1,0 +1,34 @@
+## Build outputs
+bin/
+obj/
+
+## Node
+node_modules/
+npm-debug.log*
+
+## Logs (generados en runtime)
+logs/
+*.log
+
+## Visual Studio
+.vs/
+*.user
+*.suo
+
+## NuGet
+*.nupkg
+.nuget/
+
+## Publicación
+publish/
+**/Properties/PublishProfiles/
+
+## Uploads y media generados
+src/Decorations.Web/wwwroot/uploads/
+
+## Tailwind output (se genera con npm run build:css)
+src/Decorations.Web/wwwroot/css/output.css
+
+## Environment-specific
+appsettings.Production.json
+appsettings.Staging.json
