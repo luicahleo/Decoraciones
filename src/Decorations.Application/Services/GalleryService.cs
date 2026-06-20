@@ -78,15 +78,38 @@ namespace Decorations.Application.Services
 
         public async Task<MediaAssetDto> AddImageToGalleryItemAsync(int galleryItemId, Stream imageStream, string fileName, string altText)
         {
-            byte[] processedBytes = await this.imageProcessingService.ProcessImageAsync(imageStream, fileName);
+            // Obtener el GalleryItem para saber el evento (o usar el ID del item como organizador)
+            GalleryItem? item = await this.galleryRepository.GetByIdAsync(galleryItemId);
+            if (item == null)
+            {
+                throw new InvalidOperationException($"El elemento de galería con ID {galleryItemId} no existe.");
+            }
+
+            // Procesar imagen: genera thumbnail y full-size
+            ProcessedImageResult processedResult = await this.imageProcessingService.ProcessImageAsync(imageStream, fileName);
             string webpFileName = $"{Path.GetFileNameWithoutExtension(fileName)}.webp";
-            string relativePath = await this.fileStorageService.SaveAsync(processedBytes, webpFileName);
+
+            // Ruta base: events/{galleryItemId}
+            string basePath = $"events/{galleryItemId}";
+
+            // Guardar thumbnail en carpeta separada
+            string thumbnailPath = await this.fileStorageService.SaveAsync(
+                processedResult.ThumbnailBytes,
+                webpFileName,
+                $"{basePath}/thumbnails");
+
+            // Guardar full-size en carpeta separada
+            string fullSizePath = await this.fileStorageService.SaveAsync(
+                processedResult.FullSizeBytes,
+                webpFileName,
+                $"{basePath}/full-size");
 
             MediaAsset asset = new MediaAsset
             {
                 GalleryItemId = galleryItemId,
                 MediaType = MediaType.Image,
-                FilePath = relativePath,
+                ThumbnailPath = thumbnailPath,
+                FullSizePath = fullSizePath,
                 AltText = altText
             };
 
@@ -118,9 +141,18 @@ namespace Decorations.Application.Services
                 return;
             }
 
-            if (asset.MediaType == MediaType.Image && !string.IsNullOrWhiteSpace(asset.FilePath))
+            if (asset.MediaType == MediaType.Image)
             {
-                await this.fileStorageService.DeleteAsync(asset.FilePath);
+                // Eliminar ambas versiones
+                if (!string.IsNullOrWhiteSpace(asset.ThumbnailPath))
+                {
+                    await this.fileStorageService.DeleteAsync(asset.ThumbnailPath);
+                }
+
+                if (!string.IsNullOrWhiteSpace(asset.FullSizePath))
+                {
+                    await this.fileStorageService.DeleteAsync(asset.FullSizePath);
+                }
             }
 
             this.mediaAssetRepository.Delete(asset);
@@ -130,8 +162,16 @@ namespace Decorations.Application.Services
         private async Task DeletePhysicalImagesAsync(ICollection<MediaAsset> mediaAssets)
         {
             IEnumerable<Task> deleteTasks = mediaAssets
-                .Where(m => m.MediaType == MediaType.Image && !string.IsNullOrWhiteSpace(m.FilePath))
-                .Select(m => this.fileStorageService.DeleteAsync(m.FilePath));
+                .Where(m => m.MediaType == MediaType.Image)
+                .SelectMany(m => new[]
+                {
+                    string.IsNullOrWhiteSpace(m.ThumbnailPath) 
+                        ? Task.CompletedTask 
+                        : this.fileStorageService.DeleteAsync(m.ThumbnailPath),
+                    string.IsNullOrWhiteSpace(m.FullSizePath) 
+                        ? Task.CompletedTask 
+                        : this.fileStorageService.DeleteAsync(m.FullSizePath)
+                });
 
             await Task.WhenAll(deleteTasks);
         }
@@ -180,7 +220,8 @@ namespace Decorations.Application.Services
                 Id = asset.Id,
                 GalleryItemId = asset.GalleryItemId,
                 MediaType = asset.MediaType,
-                FilePath = asset.FilePath,
+                ThumbnailPath = asset.ThumbnailPath,
+                FullSizePath = asset.FullSizePath,
                 YoutubeVideoId = asset.YoutubeVideoId,
                 AltText = asset.AltText,
                 DisplayOrder = asset.DisplayOrder

@@ -287,7 +287,8 @@ namespace Decorations.IntegrationTests.Services
             {
                 GalleryItemId = item.Id,
                 MediaType = MediaType.Image,
-                FilePath = "/uploads/test.webp",
+                ThumbnailPath = "/uploads/events/1/thumbnails/test.webp",
+                FullSizePath = "/uploads/events/1/full-size/test.webp",
                 DisplayOrder = 0
             };
             await context.MediaAssets.AddAsync(media);

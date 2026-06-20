@@ -19,7 +19,8 @@ namespace Decorations.IntegrationTests.Repositories
             {
                 GalleryItemId = item.Id,
                 MediaType = Domain.Enums.MediaType.Image,
-                FilePath = "/uploads/test.webp"
+                ThumbnailPath = "/uploads/events/1/thumbnails/test.webp",
+                FullSizePath = "/uploads/events/1/full-size/test.webp"
             });
             await context.SaveChangesAsync();
 

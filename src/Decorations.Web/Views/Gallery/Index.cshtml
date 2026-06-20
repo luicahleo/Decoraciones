@@ -22,8 +22,8 @@
                         if (media.MediaType == Decorations.Domain.Enums.MediaType.Image)
                         {
                             <div class="break-inside-avoid overflow-hidden rounded-2xl cursor-pointer group"
-                                 @@click="lightbox = true; currentImage = '@media.FilePath'; currentAlt = '@Html.Raw(media.AltText.Replace("'", "\\'"))'">
-                                <img src="@media.FilePath"
+                                 @@click="lightbox = true; currentImage = '@media.FullSizePath'; currentAlt = '@Html.Raw(media.AltText.Replace("'", "\\'"))'">
+                                <img src="@media.ThumbnailPath"
                                      alt="@media.AltText"
                                      loading="lazy"
                                      class="w-full object-cover group-hover:scale-105 transition-transform duration-500" />

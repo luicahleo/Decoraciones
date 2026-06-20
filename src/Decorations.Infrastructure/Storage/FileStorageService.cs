@@ -15,23 +15,41 @@ namespace Decorations.Infrastructure.Storage
             this.logger = logger;
         }
 
-        public async Task<string> SaveAsync(byte[] content, string fileName)
+        public async Task<string> SaveAsync(byte[] content, string fileName, string basePath = "")
         {
             string uploadsDirectory = Path.Combine(this.webHostEnvironment.WebRootPath, "uploads");
 
+            // Crear directorio de uploads si no existe
             if (!Directory.Exists(uploadsDirectory))
             {
                 Directory.CreateDirectory(uploadsDirectory);
             }
 
+            // Crear subdirectorio con basePath si se proporciona
+            string targetDirectory = uploadsDirectory;
+            string relativePath = "uploads";
+
+            if (!string.IsNullOrWhiteSpace(basePath))
+            {
+                targetDirectory = Path.Combine(uploadsDirectory, basePath);
+                if (!Directory.Exists(targetDirectory))
+                {
+                    Directory.CreateDirectory(targetDirectory);
+                }
+                relativePath = Path.Combine("uploads", basePath).Replace("\\", "/");
+            }
+
             string uniqueFileName = $"{Guid.NewGuid():N}_{fileName}";
-            string physicalFilePath = Path.Combine(uploadsDirectory, uniqueFileName);
+            string physicalFilePath = Path.Combine(targetDirectory, uniqueFileName);
 
             await File.WriteAllBytesAsync(physicalFilePath, content);
 
-            this.logger.LogDebug("FileStorageService.SaveAsync - Archivo guardado: {FileName}", uniqueFileName);
+            this.logger.LogDebug(
+                "FileStorageService.SaveAsync - Archivo guardado: {FileName} en ruta: {BasePath}",
+                uniqueFileName,
+                basePath);
 
-            return $"/uploads/{uniqueFileName}";
+            return $"/{relativePath}/{uniqueFileName}";
         }
 
         public Task DeleteAsync(string relativePath)

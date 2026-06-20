@@ -8,6 +8,7 @@ namespace Decorations.Domain.Entities
         public string? EventType { get; set; }
         public bool IsActive { get; set; }
         public int DisplayOrder { get; set; }
+        public bool ShowAsGrid { get; set; } = false;
         public DateTime CreatedAt { get; set; }
         public ICollection<MediaAsset> MediaAssets { get; set; } = new List<MediaAsset>();
     }

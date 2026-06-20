@@ -63,7 +63,7 @@ namespace Decorations.Web.Areas.Admin.Controllers
                         stream,
                         imageFile.FileName,
                         viewModel.Item.Title);
-                    this.logger.LogInformation("GalleryManagementController.Create - Imagen guardada: {FilePath}", asset.FilePath);
+                    this.logger.LogInformation("GalleryManagementController.Create - Imagen guardada: {FilePath}", asset.FullSizePath);
                 }
                 catch (Exception exception)
                 {

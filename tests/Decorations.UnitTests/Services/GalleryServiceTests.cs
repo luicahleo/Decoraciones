@@ -71,12 +71,18 @@ namespace Decorations.UnitTests.Services
         [Fact]
         public async Task AddImageToGalleryItemAsync_CallsImageProcessingService()
         {
-            byte[] processedBytes = new byte[] { 1, 2, 3 };
+            ProcessedImageResult processedResult = new ProcessedImageResult 
+            { 
+                ThumbnailBytes = new byte[] { 1 }, 
+                FullSizeBytes = new byte[] { 2 } 
+            };
             this.imageProcessingServiceMock
                 .Setup(s => s.ProcessImageAsync(It.IsAny<Stream>(), It.IsAny<string>()))
-                .ReturnsAsync(processedBytes);
+                .ReturnsAsync(processedResult);
+            this.galleryRepositoryMock.Setup(r => r.GetByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(new GalleryItem { Id = 1, Title = "Test" });
             this.fileStorageServiceMock
-                .Setup(s => s.SaveAsync(It.IsAny<byte[]>(), It.IsAny<string>()))
+                .Setup(s => s.SaveAsync(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync("/uploads/test.webp");
             this.mediaAssetRepositoryMock.Setup(r => r.AddAsync(It.IsAny<MediaAsset>())).Returns(Task.CompletedTask);
             this.mediaAssetRepositoryMock.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
@@ -90,12 +96,18 @@ namespace Decorations.UnitTests.Services
         [Fact]
         public async Task AddImageToGalleryItemAsync_CallsFileStorageService()
         {
-            byte[] processedBytes = new byte[] { 1, 2, 3 };
+            ProcessedImageResult processedResult = new ProcessedImageResult 
+            { 
+                ThumbnailBytes = new byte[] { 1 }, 
+                FullSizeBytes = new byte[] { 2 } 
+            };
             this.imageProcessingServiceMock
                 .Setup(s => s.ProcessImageAsync(It.IsAny<Stream>(), It.IsAny<string>()))
-                .ReturnsAsync(processedBytes);
+                .ReturnsAsync(processedResult);
+            this.galleryRepositoryMock.Setup(r => r.GetByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(new GalleryItem { Id = 1, Title = "Test" });
             this.fileStorageServiceMock
-                .Setup(s => s.SaveAsync(It.IsAny<byte[]>(), It.IsAny<string>()))
+                .Setup(s => s.SaveAsync(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync("/uploads/test.webp");
             this.mediaAssetRepositoryMock.Setup(r => r.AddAsync(It.IsAny<MediaAsset>())).Returns(Task.CompletedTask);
             this.mediaAssetRepositoryMock.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
@@ -103,18 +115,25 @@ namespace Decorations.UnitTests.Services
             using Stream stream = new MemoryStream(new byte[] { 10, 20, 30 });
             await this.service.AddImageToGalleryItemAsync(1, stream, "foto.jpg", "Alt text");
 
-            this.fileStorageServiceMock.Verify(s => s.SaveAsync(processedBytes, It.IsAny<string>()), Times.Once);
+            this.fileStorageServiceMock.Verify(s => s.SaveAsync(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
         }
 
         [Fact]
         public async Task AddImageToGalleryItemAsync_SavesMediaAssetWithImageType()
         {
             MediaAsset? capturedAsset = null;
+            ProcessedImageResult processedResult = new ProcessedImageResult 
+            { 
+                ThumbnailBytes = new byte[] { 1 }, 
+                FullSizeBytes = new byte[] { 2 } 
+            };
             this.imageProcessingServiceMock
                 .Setup(s => s.ProcessImageAsync(It.IsAny<Stream>(), It.IsAny<string>()))
-                .ReturnsAsync(new byte[] { 1 });
+                .ReturnsAsync(processedResult);
+            this.galleryRepositoryMock.Setup(r => r.GetByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(new GalleryItem { Id = 1, Title = "Test" });
             this.fileStorageServiceMock
-                .Setup(s => s.SaveAsync(It.IsAny<byte[]>(), It.IsAny<string>()))
+                .Setup(s => s.SaveAsync(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync("/uploads/test.webp");
             this.mediaAssetRepositoryMock
                 .Setup(r => r.AddAsync(It.IsAny<MediaAsset>()))
@@ -189,7 +208,7 @@ namespace Decorations.UnitTests.Services
                 Title = "Fiesta",
                 MediaAssets = new List<MediaAsset>
                 {
-                    new MediaAsset { Id = 10, MediaType = MediaType.Image, FilePath = "/uploads/img.webp" }
+                    new MediaAsset { Id = 10, MediaType = MediaType.Image, ThumbnailPath = "/uploads/events/1/thumbnails/img.webp", FullSizePath = "/uploads/events/1/full-size/img.webp" }
                 }
             };
             this.galleryRepositoryMock.Setup(r => r.GetByIdWithMediaAsync(1)).ReturnsAsync(item);

@@ -10,7 +10,8 @@ namespace Decorations.Infrastructure.Persistence.Configurations
         {
             builder.HasKey(m => m.Id);
             builder.Property(m => m.MediaType).IsRequired();
-            builder.Property(m => m.FilePath).HasMaxLength(500);
+            builder.Property(m => m.ThumbnailPath).HasMaxLength(500);
+            builder.Property(m => m.FullSizePath).HasMaxLength(500);
             builder.Property(m => m.YoutubeVideoId).HasMaxLength(50);
             builder.Property(m => m.AltText).HasMaxLength(200);
         }
