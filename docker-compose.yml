@@ -18,6 +18,25 @@ services:
       retries: 5
       start_period: 30s
 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: decoraciones-app
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=DecorationsDb;User Id=sa;Password=Decoraciones@2024;TrustServerCertificate=True;MultipleActiveResultSets=true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - app_uploads:/app/wwwroot/uploads
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   sqlserver_data:
     name: decoraciones-sqlserver-data
+  app_uploads:
+    name: decoraciones-app-uploads

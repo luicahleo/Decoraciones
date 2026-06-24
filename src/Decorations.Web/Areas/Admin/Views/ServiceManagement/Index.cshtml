@@ -1,0 +1,66 @@
+@model IReadOnlyList<Decorations.Application.DTOs.ServiceDto>
+@{ ViewData["Title"] = "Gestión de Servicios"; }
+
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Servicios</h1>
+    <a asp-area="Admin" asp-controller="ServiceManagement" asp-action="Create" class="btn-primary">+ Añadir servicio</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card p-12 text-center">
+        <p class="text-gray-500 dark:text-gray-400">No hay servicios. ¡Añade el primero!</p>
+    </div>
+}
+else
+{
+    <div class="card overflow-hidden">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                    <th class="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">Orden</th>
+                    <th class="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">Título</th>
+                    <th class="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">Descripción</th>
+                    <th class="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">Estado</th>
+                    <th class="text-right px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                @foreach (var service in Model)
+                {
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                        <td class="px-6 py-4 text-gray-600 dark:text-gray-400">@service.DisplayOrder</td>
+                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                            @if (!string.IsNullOrWhiteSpace(service.IconCssClass))
+                            {
+                                <span class="mr-2">@service.IconCssClass</span>
+                            }
+                            @service.Title
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 dark:text-gray-400 max-w-xs truncate">@service.Description</td>
+                        <td class="px-6 py-4">
+                            @if (service.IsActive)
+                            {
+                                <span class="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-semibold">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full text-xs font-semibold">Inactivo</span>
+                            }
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <a asp-area="Admin" asp-controller="ServiceManagement" asp-action="Edit" asp-route-id="@service.Id"
+                               class="text-primary-600 hover:text-primary-700 font-medium mr-4">Editar</a>
+                            <form asp-area="Admin" asp-controller="ServiceManagement" asp-action="Delete" asp-route-id="@service.Id"
+                                  method="post" class="inline"
+                                  onsubmit="return confirm('¿Seguro que quieres eliminar este servicio?')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="text-red-500 hover:text-red-700 font-medium">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,76 @@
+@model Decorations.Application.DTOs.ServiceDto
+@{ ViewData["Title"] = "Nuevo servicio"; }
+
+<div class="max-w-2xl">
+    <div class="flex items-center gap-4 mb-6">
+        <a asp-area="Admin" asp-controller="ServiceManagement" asp-action="Index"
+           class="text-gray-500 hover:text-primary-600 transition-colors">← Volver</a>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nuevo servicio</h1>
+    </div>
+
+    <form asp-area="Admin" asp-controller="ServiceManagement" asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+        <div class="card p-6 space-y-6">
+
+            <div class="space-y-4">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información general</h2>
+
+                <div>
+                    <label asp-for="Title" class="form-label">Título *</label>
+                    <input asp-for="Title" class="form-input" placeholder="Ej: Decoración de cumpleaños" />
+                    <span asp-validation-for="Title" class="text-red-500 text-sm mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Description" class="form-label">Descripción *</label>
+                    <textarea asp-for="Description" rows="4" class="form-input resize-none"
+                              placeholder="Describe el servicio..."></textarea>
+                    <span asp-validation-for="Description" class="text-red-500 text-sm mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label asp-for="IconCssClass" class="form-label">Icono (emoji o clase CSS)</label>
+                    <input asp-for="IconCssClass" class="form-input" placeholder="Ej: 🎉" />
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Puedes usar un emoji directamente.</p>
+                </div>
+
+                <div>
+                    <label asp-for="DisplayOrder" class="form-label">Orden de visualización</label>
+                    <input asp-for="DisplayOrder" type="number" class="form-input" />
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <input asp-for="IsActive" type="checkbox" class="w-4 h-4 rounded text-primary-600" />
+                    <label asp-for="IsActive" class="form-label mb-0">Publicar (visible en la web)</label>
+                </div>
+            </div>
+
+            <hr class="border-gray-200 dark:border-gray-700" />
+
+            <div class="space-y-4">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">SEO (opcional)</h2>
+
+                <div>
+                    <label asp-for="SeoMetaTitle" class="form-label">Meta título</label>
+                    <input asp-for="SeoMetaTitle" class="form-input" placeholder="Título para motores de búsqueda" />
+                </div>
+
+                <div>
+                    <label asp-for="SeoMetaDescription" class="form-label">Meta descripción</label>
+                    <textarea asp-for="SeoMetaDescription" rows="2" class="form-input resize-none"
+                              placeholder="Descripción para motores de búsqueda (máx. 160 caracteres)"></textarea>
+                </div>
+
+                <div>
+                    <label asp-for="SeoOpenGraphImageUrl" class="form-label">URL imagen Open Graph</label>
+                    <input asp-for="SeoOpenGraphImageUrl" class="form-input" placeholder="https://..." />
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button type="submit" class="btn-primary">Guardar</button>
+                <a asp-area="Admin" asp-controller="ServiceManagement" asp-action="Index" class="btn-secondary">Cancelar</a>
+            </div>
+        </div>
+    </form>
+</div>
