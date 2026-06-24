@@ -22,7 +22,8 @@ namespace Decorations.Application.Services
 
         public async Task UpdateContactSettingsAsync(ContactSettingsDto dto)
         {
-            ContactSettings? settings = await this.repository.GetByIdAsync(dto.Id);
+            IReadOnlyList<ContactSettings> allSettings = await this.repository.GetAllAsync();
+            ContactSettings? settings = allSettings.FirstOrDefault();
             if (settings == null)
             {
                 return;

@@ -58,7 +58,8 @@ namespace Decorations.Web.Areas.Admin.Controllers
             if (imageFiles != null && imageFiles.Count > 0)
             {
                 string? featuredImageIndexStr = this.HttpContext.Request.Form["featuredImageIndex"];
-                int.TryParse(featuredImageIndexStr, out int featuredImageIndex);
+                int featuredImageIndex = -1;
+                int.TryParse(featuredImageIndexStr, out featuredImageIndex);
 
                 for (int index = 0; index < imageFiles.Count; index++)
                 {
