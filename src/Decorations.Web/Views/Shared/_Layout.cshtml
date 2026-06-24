@@ -1,53 +1,143 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es"
-      x-data="{ darkMode: localStorage.getItem('theme') === 'dark', mobileMenu: false }"
+      x-data="{ darkMode: localStorage.getItem('theme') === 'dark', mobileMenu: false, scrolled: false }"
       :class="{ 'dark': darkMode }"
-      x-init="$watch('darkMode', val => localStorage.setItem('theme', val ? 'dark' : 'light'))">
+      x-init="
+        $watch('darkMode', val => localStorage.setItem('theme', val ? 'dark' : 'light'));
+        window.addEventListener('scroll', () => { scrolled = window.scrollY > 40 });
+      ">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     @await Html.PartialAsync("_SeoMeta", Model as Decorations.Web.ViewModels.SeoViewModel ?? new Decorations.Web.ViewModels.SeoViewModel())
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-300 font-sans">
-    <header class="sticky top-0 z-50 bg-white/90 dark:bg-gray-950/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
+
+    <!-- Navbar -->
+    <header class="fixed top-0 inset-x-0 z-50 transition-all duration-300"
+            :class="scrolled ? 'bg-white/95 dark:bg-gray-950/95 backdrop-blur-md shadow-sm' : 'bg-transparent'">
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <a asp-controller="Home" asp-action="Index" class="flex items-center gap-2 text-xl font-bold text-primary-600 dark:text-primary-400">
-                    ✨ Decoraciones
+            <div class="flex items-center justify-between h-20">
+
+                <!-- Brand -->
+                <a asp-controller="Home" asp-action="Index"
+                   class="flex items-center gap-2 transition-colors duration-200"
+                   :class="scrolled ? 'text-primary-700 dark:text-primary-400' : 'text-white'">
+                    <span class="text-2xl">✿</span>
+                    <span class="font-display font-bold text-xl tracking-wide">Decoraciones</span>
                 </a>
-                <div class="hidden md:flex items-center gap-8">
-                    <a asp-controller="Home" asp-action="Index" class="nav-link">Inicio</a>
-                    <a asp-controller="Gallery" asp-action="Index" class="nav-link">Galería</a>
-                    <a asp-controller="Contact" asp-action="Index" class="nav-link">Contacto</a>
-                    <button @@click="darkMode = !darkMode" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
-                        <svg x-show="!darkMode" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-                        <svg x-show="darkMode" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+
+                <!-- Desktop links -->
+                <div class="hidden md:flex items-center gap-10">
+                    <a asp-controller="Home" asp-action="Index"
+                       class="text-sm font-medium tracking-wide transition-colors duration-200"
+                       :class="scrolled ? 'text-gray-700 dark:text-gray-300 hover:text-primary-600' : 'text-white/90 hover:text-white'">
+                        Inicio
+                    </a>
+                    <a asp-controller="Gallery" asp-action="Index"
+                       class="text-sm font-medium tracking-wide transition-colors duration-200"
+                       :class="scrolled ? 'text-gray-700 dark:text-gray-300 hover:text-primary-600' : 'text-white/90 hover:text-white'">
+                        Galería
+                    </a>
+                    <a asp-controller="Contact" asp-action="Index"
+                       class="px-6 py-2.5 rounded-full border-2 text-sm font-semibold tracking-wide transition-all duration-200"
+                       :class="scrolled ? 'border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white' : 'border-white text-white hover:bg-white hover:text-primary-700'">
+                        Contacto
+                    </a>
+                    <button @@click="darkMode = !darkMode"
+                            class="p-2 rounded-full transition-colors duration-200"
+                            :class="scrolled ? 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white' : 'text-white/70 hover:text-white'">
+                        <svg x-show="!darkMode" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                        <svg x-show="darkMode" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                     </button>
                 </div>
-                <div class="md:hidden flex items-center gap-2">
-                    <button @@click="mobileMenu = !mobileMenu" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                    </button>
-                </div>
+
+                <!-- Mobile toggle -->
+                <button @@click="mobileMenu = !mobileMenu"
+                        class="md:hidden p-2 rounded-lg transition-colors duration-200"
+                        :class="scrolled ? 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800' : 'text-white hover:bg-white/10'">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path x-show="!mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        <path x-show="mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
-            <div x-show="mobileMenu" x-transition class="md:hidden pb-4 space-y-2">
-                <a asp-controller="Home" asp-action="Index" class="block py-2 nav-link">Inicio</a>
-                <a asp-controller="Gallery" asp-action="Index" class="block py-2 nav-link">Galería</a>
-                <a asp-controller="Contact" asp-action="Index" class="block py-2 nav-link">Contacto</a>
+
+            <!-- Mobile menu -->
+            <div x-show="mobileMenu"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 -translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 -translate-y-2"
+                 class="md:hidden bg-white dark:bg-gray-900 rounded-2xl mb-4 shadow-xl border border-cream-200 dark:border-gray-800 overflow-hidden">
+                <div class="px-4 py-5 space-y-1">
+                    <a asp-controller="Home" asp-action="Index" class="block py-3 px-4 rounded-xl text-gray-800 dark:text-gray-200 hover:bg-cream-100 dark:hover:bg-gray-800 font-medium transition-colors">Inicio</a>
+                    <a asp-controller="Gallery" asp-action="Index" class="block py-3 px-4 rounded-xl text-gray-800 dark:text-gray-200 hover:bg-cream-100 dark:hover:bg-gray-800 font-medium transition-colors">Galería</a>
+                    <a asp-controller="Contact" asp-action="Index" class="block py-3 px-4 rounded-xl text-gray-800 dark:text-gray-200 hover:bg-cream-100 dark:hover:bg-gray-800 font-medium transition-colors">Contacto</a>
+                </div>
             </div>
         </nav>
     </header>
+
     <main>@RenderBody()</main>
-    <footer class="bg-gray-950 text-gray-400 py-12 mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="text-primary-400 font-bold text-lg mb-2">✨ Decoraciones Especiales</p>
-            <p class="text-sm">© @DateTime.Now.Year Todos los derechos reservados.</p>
+
+    <!-- Footer -->
+    <footer class="bg-gray-950 text-gray-400 pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+
+                <!-- Brand column -->
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-primary-400 text-2xl">✿</span>
+                        <span class="text-white font-display font-bold text-xl">Decoraciones</span>
+                    </div>
+                    <p class="text-gray-500 text-sm leading-relaxed mb-4">
+                        Creamos momentos mágicos e inolvidables para tus celebraciones más especiales.
+                    </p>
+                    <div class="flex items-center gap-1 text-gold-400 text-sm">
+                        <span>✦</span><span>✦</span><span>✦</span><span>✦</span><span>✦</span>
+                    </div>
+                </div>
+
+                <!-- Navigation column -->
+                <div>
+                    <h4 class="text-white font-semibold text-sm uppercase tracking-widest mb-6">Navegación</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a asp-controller="Home" asp-action="Index" class="hover:text-primary-400 transition-colors duration-200">Inicio</a></li>
+                        <li><a asp-controller="Gallery" asp-action="Index" class="hover:text-primary-400 transition-colors duration-200">Galería de Trabajos</a></li>
+                        <li><a asp-controller="Contact" asp-action="Index" class="hover:text-primary-400 transition-colors duration-200">Solicitar Presupuesto</a></li>
+                        <li><a asp-controller="Contact" asp-action="Index" class="hover:text-primary-400 transition-colors duration-200">Contacto</a></li>
+                    </ul>
+                </div>
+
+                <!-- Services column -->
+                <div>
+                    <h4 class="text-white font-semibold text-sm uppercase tracking-widest mb-6">Servicios</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-center gap-2"><span class="text-primary-500 text-xs">✦</span> Bodas &amp; Aniversarios</li>
+                        <li class="flex items-center gap-2"><span class="text-primary-500 text-xs">✦</span> Cumpleaños &amp; Fiestas</li>
+                        <li class="flex items-center gap-2"><span class="text-primary-500 text-xs">✦</span> Bautizos &amp; Comuniones</li>
+                        <li class="flex items-center gap-2"><span class="text-primary-500 text-xs">✦</span> Eventos Corporativos</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="border-t border-gray-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-600">
+                <span>© @DateTime.Now.Year <span class="text-gray-500">Decoraciones Especiales</span>. Todos los derechos reservados.</span>
+                <span class="text-gray-700">Hecho con <span class="text-primary-500">♥</span> para tus momentos únicos</span>
+            </div>
         </div>
     </footer>
+
     @await Html.PartialAsync("_WhatsAppButton")
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
     @await RenderSectionAsync("Scripts", required: false)

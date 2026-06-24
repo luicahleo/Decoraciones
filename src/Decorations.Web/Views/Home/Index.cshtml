@@ -1,36 +1,105 @@
-﻿@model Decorations.Web.ViewModels.HomeViewModel
+@model Decorations.Web.ViewModels.HomeViewModel
 
-<section class="relative bg-gradient-to-br from-primary-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-24 px-4">
-    <div class="max-w-4xl mx-auto text-center">
-        <h1 class="text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">
-            Creamos momentos <span class="text-primary-600 dark:text-primary-400">inolvidables</span>
+<!-- ═══════════════════════════════════════════════════
+     HERO — Full-screen image with overlay
+════════════════════════════════════════════════════ -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden"
+         style="background-image: url('https://images.pexels.com/photos/16120206/pexels-photo-16120206.jpeg?auto=compress&cs=tinysrgb&w=1920&q=80'); background-size: cover; background-position: center;">
+
+    <!-- Gradient overlay -->
+    <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 max-w-4xl mx-auto px-4 text-center">
+        <span class="inline-block text-gold-300 text-sm font-semibold uppercase tracking-[0.3em] mb-6">
+            ✦ &nbsp; Decoración de Eventos &nbsp; ✦
+        </span>
+        <h1 class="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+            Creamos momentos<br>
+            <em class="not-italic text-primary-300">inolvidables</em>
         </h1>
-        <p class="text-xl text-gray-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto">
-            Decoraciones únicas y personalizadas para tus eventos más especiales. Cumpleaños, bautizos, comuniones y mucho más.
+        <p class="text-lg md:text-xl text-white/75 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Decoraciones únicas y personalizadas para tus eventos más especiales.
+            Bodas, cumpleaños, bautizos y mucho más.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a asp-controller="Contact" asp-action="Index" class="btn-primary inline-block">Solicitar Presupuesto</a>
-            <a asp-controller="Gallery" asp-action="Index" class="btn-secondary inline-block">Ver Galería</a>
+            <a asp-controller="Contact" asp-action="Index" class="btn-white inline-block">
+                Solicitar Presupuesto
+            </a>
+            <a asp-controller="Gallery" asp-action="Index"
+               class="inline-block border-2 border-white/60 text-white/90 hover:border-white hover:text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 tracking-wide">
+                Ver Galería
+            </a>
+        </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50 animate-bounce">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7" />
+        </svg>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     STATS BAR
+════════════════════════════════════════════════════ -->
+<section class="bg-white dark:bg-gray-900 border-b border-cream-200 dark:border-gray-800 py-12">
+    <div class="max-w-5xl mx-auto px-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+                <p class="stat-number">200<span class="text-primary-400">+</span></p>
+                <p class="stat-label">Eventos Realizados</p>
+            </div>
+            <div>
+                <p class="stat-number">5<span class="text-primary-400">★</span></p>
+                <p class="stat-label">Valoración Clientes</p>
+            </div>
+            <div>
+                <p class="stat-number">8<span class="text-primary-400">+</span></p>
+                <p class="stat-label">Años de Experiencia</p>
+            </div>
+            <div>
+                <p class="stat-number">100<span class="text-primary-400">%</span></p>
+                <p class="stat-label">Satisfacción</p>
+            </div>
         </div>
     </div>
 </section>
 
+<!-- ═══════════════════════════════════════════════════
+     SERVICES
+════════════════════════════════════════════════════ -->
 @if (Model.Services.Any())
 {
-    <section class="py-20 px-4 bg-white dark:bg-gray-950">
+    <section class="py-24 px-4 bg-cream-50 dark:bg-gray-950">
         <div class="max-w-7xl mx-auto">
-            <h2 class="section-title">Nuestros Servicios</h2>
-            <p class="section-subtitle">Ofrecemos una amplia variedad de servicios de decoración para hacer de tu evento algo único.</p>
+            <div class="text-center mb-16">
+                <span class="section-eyebrow">Lo que hacemos</span>
+                <h2 class="section-title">Nuestros Servicios</h2>
+                <div class="gold-divider"></div>
+                <p class="section-subtitle">Ofrecemos una amplia variedad de servicios de decoración para hacer de tu evento algo único e irrepetible.</p>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @foreach (var service in Model.Services)
                 {
-                    <div class="card p-8 text-center">
+                    <div class="card p-8 text-center group hover:-translate-y-1 transition-transform duration-300">
                         @if (!string.IsNullOrEmpty(service.IconCssClass))
                         {
-                            <div class="text-4xl mb-4">@service.IconCssClass</div>
+                            <div class="w-16 h-16 bg-primary-50 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors duration-300">
+                                <span class="text-3xl">@service.IconCssClass</span>
+                            </div>
                         }
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">@service.Title</h3>
-                        <p class="text-gray-600 dark:text-gray-400">@service.Description</p>
+                        else
+                        {
+                            <div class="w-16 h-16 bg-primary-50 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                                <span class="text-3xl">✿</span>
+                            </div>
+                        }
+                        <h3 class="font-display text-xl font-bold text-gray-900 dark:text-white mb-3">@service.Title</h3>
+                        <div class="w-8 h-0.5 bg-gold-400 mx-auto mb-4"></div>
+                        <p class="text-gray-500 dark:text-gray-400 leading-relaxed text-sm">@service.Description</p>
                     </div>
                 }
             </div>
@@ -38,27 +107,39 @@
     </section>
 }
 
+<!-- ═══════════════════════════════════════════════════
+     GALLERY PREVIEW
+════════════════════════════════════════════════════ -->
 @if (Model.GalleryPreview.Any())
 {
-    <section class="py-20 px-4 bg-gray-50 dark:bg-gray-900">
+    <section class="py-24 px-4 bg-white dark:bg-gray-900">
         <div class="max-w-7xl mx-auto">
-            <h2 class="section-title">Nuestros Trabajos</h2>
-            <p class="section-subtitle">Una muestra de las decoraciones que hemos creado con amor para nuestros clientes.</p>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
+            <div class="text-center mb-16">
+                <span class="section-eyebrow">Portfolio</span>
+                <h2 class="section-title">Nuestros Trabajos</h2>
+                <div class="gold-divider"></div>
+                <p class="section-subtitle">Una muestra de las decoraciones que hemos creado con amor para nuestros clientes.</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-12">
                 @foreach (var item in Model.GalleryPreview)
                 {
                     var firstImage = item.MediaAssets.FirstOrDefault(m => m.MediaType == Decorations.Domain.Enums.MediaType.Image);
                     if (firstImage != null)
                     {
-                        <div class="overflow-hidden rounded-2xl aspect-square">
+                        <div class="overflow-hidden rounded-2xl aspect-square group cursor-pointer relative">
                             <img src="@firstImage.ThumbnailPath"
                                  alt="@firstImage.AltText"
                                  loading="lazy"
-                                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                                <span class="text-white text-sm font-medium">@item.Title</span>
+                            </div>
                         </div>
                     }
                 }
             </div>
+
             <div class="text-center">
                 <a asp-controller="Gallery" asp-action="Index" class="btn-primary inline-block">Ver Galería Completa</a>
             </div>
@@ -66,11 +147,92 @@
     </section>
 }
 
-<section class="py-20 px-4 bg-primary-600 dark:bg-primary-800">
-    <div class="max-w-3xl mx-auto text-center text-white">
-        <h2 class="text-4xl font-bold mb-4">¿Listo para crear algo mágico?</h2>
-        <p class="text-primary-100 text-lg mb-8">Cuéntanos sobre tu evento y te prepararemos un presupuesto personalizado sin compromiso.</p>
-        <a asp-controller="Contact" asp-action="Index" class="bg-white text-primary-600 font-bold py-3 px-8 rounded-xl hover:bg-primary-50 transition-colors duration-200 inline-block">
+<!-- ═══════════════════════════════════════════════════
+     WHY CHOOSE US
+════════════════════════════════════════════════════ -->
+<section class="py-24 px-4 bg-cream-50 dark:bg-gray-950">
+    <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <!-- Image -->
+            <div class="relative">
+                <div class="rounded-3xl overflow-hidden aspect-[4/3] shadow-2xl">
+                    <img src="https://images.pexels.com/photos/16935992/pexels-photo-16935992.jpeg?auto=compress&cs=tinysrgb&w=800&q=80"
+                         alt="Decoración de eventos elegante"
+                         loading="lazy"
+                         class="w-full h-full object-cover" />
+                </div>
+                <!-- Floating accent card -->
+                <div class="absolute -bottom-6 -right-6 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-5 hidden md:block border border-cream-200 dark:border-gray-700">
+                    <p class="font-display text-3xl font-bold text-primary-600 dark:text-primary-400">200+</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest mt-1">Eventos Felices</p>
+                </div>
+            </div>
+
+            <!-- Text -->
+            <div>
+                <span class="section-eyebrow">¿Por qué elegirnos?</span>
+                <h2 class="font-display text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
+                    Cada evento es una obra<br><em class="not-italic text-primary-600">de arte única</em>
+                </h2>
+                <div class="gold-divider-left"></div>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed mb-8">
+                    Nos dedicamos a transformar tus sueños en realidad. Con atención al detalle,
+                    creatividad y pasión, diseñamos espacios que dejan huella en cada invitado.
+                </p>
+
+                <div class="space-y-5">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900/40 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span class="text-primary-600 dark:text-primary-400 text-lg">✓</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900 dark:text-white mb-1">Diseño Personalizado</h4>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">Cada decoración se adapta completamente a tus gustos y necesidades.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900/40 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span class="text-primary-600 dark:text-primary-400 text-lg">✓</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900 dark:text-white mb-1">Materiales de Calidad</h4>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">Utilizamos los mejores materiales para garantizar resultados espectaculares.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900/40 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span class="text-primary-600 dark:text-primary-400 text-lg">✓</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900 dark:text-white mb-1">Puntualidad Garantizada</h4>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">Tu evento estará listo a tiempo, sin preocupaciones ni estrés.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     CTA — Background image with overlay
+════════════════════════════════════════════════════ -->
+<section class="relative py-32 px-4 overflow-hidden"
+         style="background-image: url('https://images.pexels.com/photos/17023012/pexels-photo-17023012.jpeg?auto=compress&cs=tinysrgb&w=1920&q=80'); background-size: cover; background-position: center;">
+
+    <div class="absolute inset-0 bg-primary-900/80"></div>
+
+    <div class="relative z-10 max-w-3xl mx-auto text-center text-white">
+        <span class="inline-block text-gold-300 text-sm font-semibold uppercase tracking-[0.3em] mb-6">
+            ✦ &nbsp; Empieza Hoy &nbsp; ✦
+        </span>
+        <h2 class="font-display text-4xl md:text-5xl font-bold mb-6 leading-tight">
+            ¿Listo para crear<br>algo mágico?
+        </h2>
+        <p class="text-primary-200 text-lg mb-10 leading-relaxed max-w-xl mx-auto">
+            Cuéntanos sobre tu evento y te prepararemos un presupuesto personalizado sin ningún compromiso.
+        </p>
+        <a asp-controller="Contact" asp-action="Index" class="btn-white inline-block">
             Contactar Ahora
         </a>
     </div>

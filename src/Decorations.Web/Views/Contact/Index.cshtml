@@ -1,95 +1,164 @@
 @model Decorations.Web.ViewModels.ContactViewModel
 
+<!-- Page hero -->
+<section class="relative pt-36 pb-16 px-4 bg-cream-50 dark:bg-gray-950 border-b border-cream-200 dark:border-gray-800"
+         style="background-image: url('https://images.pexels.com/photos/5893231/pexels-photo-5893231.jpeg?auto=compress&cs=tinysrgb&w=1920&q=60'); background-size: cover; background-position: center;">
+    <div class="absolute inset-0 bg-primary-950/80 dark:bg-gray-950/90"></div>
+    <div class="relative z-10 max-w-3xl mx-auto text-center">
+        <span class="section-eyebrow text-gold-300">Hablemos</span>
+        <h1 class="font-display text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">Contáctanos</h1>
+        <div class="w-12 h-0.5 bg-gold-400 mx-auto mb-5"></div>
+        <p class="text-white/70 text-lg leading-relaxed">
+            Cuéntanos sobre tu evento y te enviaremos un presupuesto personalizado.
+        </p>
+    </div>
+</section>
+
+<!-- Main content -->
 <section class="py-20 px-4 bg-white dark:bg-gray-950">
     <div class="max-w-6xl mx-auto">
-        <h1 class="section-title">Contacto</h1>
-        <p class="section-subtitle">Cuéntanos sobre tu evento y te enviaremos un presupuesto personalizado.</p>
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start">
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div>
-                <form asp-controller="Contact" asp-action="Index" method="post" novalidate>
-                    @Html.AntiForgeryToken()
+            <!-- Form (wider column) -->
+            <div class="lg:col-span-3">
+                <div class="card p-8 md:p-10">
+                    <h2 class="font-display text-2xl font-bold text-gray-900 dark:text-white mb-2">Envíanos un Mensaje</h2>
+                    <p class="text-gray-500 text-sm mb-8">Te responderemos en menos de 24 horas.</p>
 
-                    <div class="space-y-5">
-                        <div>
-                            <label asp-for="Form.Name" class="form-label">Nombre *</label>
-                            <input asp-for="Form.Name" class="form-input" placeholder="Tu nombre completo" />
-                            <span asp-validation-for="Form.Name" class="text-red-500 text-sm mt-1 block"></span>
+                    <form asp-controller="Contact" asp-action="Index" method="post" novalidate>
+                        @Html.AntiForgeryToken()
+                        <div class="space-y-5">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                <div>
+                                    <label asp-for="Form.Name" class="form-label">Nombre *</label>
+                                    <input asp-for="Form.Name" class="form-input" placeholder="Tu nombre completo" />
+                                    <span asp-validation-for="Form.Name" class="text-red-500 text-xs mt-1.5 block"></span>
+                                </div>
+                                <div>
+                                    <label asp-for="Form.Phone" class="form-label">Teléfono</label>
+                                    <input asp-for="Form.Phone" type="tel" class="form-input" placeholder="+34 600 000 000" />
+                                </div>
+                            </div>
+                            <div>
+                                <label asp-for="Form.Email" class="form-label">Email *</label>
+                                <input asp-for="Form.Email" type="email" class="form-input" placeholder="tu@email.com" />
+                                <span asp-validation-for="Form.Email" class="text-red-500 text-xs mt-1.5 block"></span>
+                            </div>
+                            <div>
+                                <label asp-for="Form.EventType" class="form-label">Tipo de evento</label>
+                                <select asp-for="Form.EventType" class="form-input">
+                                    <option value="">Selecciona el tipo de evento</option>
+                                    <option value="Cumpleaños">🎂 Cumpleaños</option>
+                                    <option value="Bautizo">🕊️ Bautizo</option>
+                                    <option value="Comunión">✝️ Comunión</option>
+                                    <option value="Boda">💍 Boda</option>
+                                    <option value="Otro">✨ Otro</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label asp-for="Form.Message" class="form-label">Mensaje *</label>
+                                <textarea asp-for="Form.Message" rows="5" class="form-input resize-none"
+                                          placeholder="Cuéntanos sobre tu evento: fecha, número de invitados, ideas..."></textarea>
+                                <span asp-validation-for="Form.Message" class="text-red-500 text-xs mt-1.5 block"></span>
+                            </div>
+                            <button type="submit" class="btn-primary w-full text-center">
+                                Enviar Mensaje ✉️
+                            </button>
                         </div>
-                        <div>
-                            <label asp-for="Form.Email" class="form-label">Email *</label>
-                            <input asp-for="Form.Email" type="email" class="form-input" placeholder="tu@email.com" />
-                            <span asp-validation-for="Form.Email" class="text-red-500 text-sm mt-1 block"></span>
-                        </div>
-                        <div>
-                            <label asp-for="Form.Phone" class="form-label">Teléfono</label>
-                            <input asp-for="Form.Phone" type="tel" class="form-input" placeholder="+34 600 000 000" />
-                        </div>
-                        <div>
-                            <label asp-for="Form.EventType" class="form-label">Tipo de evento</label>
-                            <select asp-for="Form.EventType" class="form-input">
-                                <option value="">Selecciona el tipo de evento</option>
-                                <option value="Cumpleaños">Cumpleaños</option>
-                                <option value="Bautizo">Bautizo</option>
-                                <option value="Comunión">Comunión</option>
-                                <option value="Boda">Boda</option>
-                                <option value="Otro">Otro</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label asp-for="Form.Message" class="form-label">Mensaje *</label>
-                            <textarea asp-for="Form.Message" rows="5" class="form-input resize-none" placeholder="Cuéntanos sobre tu evento: fecha, número de invitados, ideas..."></textarea>
-                            <span asp-validation-for="Form.Message" class="text-red-500 text-sm mt-1 block"></span>
-                        </div>
-                        <button type="submit" class="btn-primary w-full">Enviar Mensaje</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
 
-            <div class="space-y-6">
-                <div class="card p-6">
-                    <h3 class="font-bold text-xl text-gray-900 dark:text-white mb-4">Información de Contacto</h3>
-                    @if (!string.IsNullOrEmpty(Model.ContactSettings.Email))
-                    {
-                        <div class="flex items-center gap-3 mb-3">
-                            <span class="text-primary-600">📧</span>
-                            <a href="mailto:@Model.ContactSettings.Email" class="text-gray-700 dark:text-gray-300 hover:text-primary-600 transition-colors">@Model.ContactSettings.Email</a>
-                        </div>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.ContactSettings.WhatsAppNumber))
-                    {
-                        <div class="flex items-center gap-3 mb-3">
-                            <span class="text-green-500">📱</span>
-                            <a href="https://wa.me/@(Model.ContactSettings.WhatsAppNumber.Replace("+", "").Replace(" ", ""))" target="_blank" class="text-gray-700 dark:text-gray-300 hover:text-green-600 transition-colors">@Model.ContactSettings.WhatsAppNumber</a>
-                        </div>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.ContactSettings.BusinessHours))
-                    {
-                        <div class="flex items-center gap-3">
-                            <span class="text-primary-600">🕐</span>
-                            <span class="text-gray-700 dark:text-gray-300">@Model.ContactSettings.BusinessHours</span>
-                        </div>
-                    }
-                </div>
+            <!-- Info column -->
+            <div class="lg:col-span-2 space-y-6">
 
-                @if (!string.IsNullOrEmpty(Model.ContactSettings.InstagramUrl) || !string.IsNullOrEmpty(Model.ContactSettings.FacebookUrl))
-                {
-                    <div class="card p-6">
-                        <h3 class="font-bold text-xl text-gray-900 dark:text-white mb-4">Síguenos</h3>
-                        @if (!string.IsNullOrEmpty(Model.ContactSettings.InstagramUrl))
+                <!-- Contact info card -->
+                <div class="card p-7">
+                    <h3 class="font-display text-lg font-bold text-gray-900 dark:text-white mb-5">Información de Contacto</h3>
+                    <div class="space-y-4">
+                        @if (!string.IsNullOrEmpty(Model.ContactSettings.Email))
                         {
-                            <a href="@Model.ContactSettings.InstagramUrl" target="_blank" class="flex items-center gap-3 mb-3 text-gray-700 dark:text-gray-300 hover:text-primary-600 transition-colors">
-                                <span>📸</span> Instagram
+                            <a href="mailto:@Model.ContactSettings.Email"
+                               class="flex items-center gap-4 group">
+                                <div class="w-10 h-10 bg-primary-50 dark:bg-primary-900/30 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-primary-100 transition-colors">
+                                    <span class="text-primary-600 dark:text-primary-400">📧</span>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400 uppercase tracking-wider mb-0.5">Email</p>
+                                    <p class="text-gray-800 dark:text-gray-200 text-sm font-medium group-hover:text-primary-600 transition-colors">@Model.ContactSettings.Email</p>
+                                </div>
                             </a>
                         }
-                        @if (!string.IsNullOrEmpty(Model.ContactSettings.FacebookUrl))
+                        @if (!string.IsNullOrEmpty(Model.ContactSettings.WhatsAppNumber))
                         {
-                            <a href="@Model.ContactSettings.FacebookUrl" target="_blank" class="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-primary-600 transition-colors">
-                                <span>👥</span> Facebook
+                            <a href="https://wa.me/@(Model.ContactSettings.WhatsAppNumber.Replace("+", "").Replace(" ", ""))"
+                               target="_blank"
+                               class="flex items-center gap-4 group">
+                                <div class="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-green-100 transition-colors">
+                                    <span>📱</span>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400 uppercase tracking-wider mb-0.5">WhatsApp</p>
+                                    <p class="text-gray-800 dark:text-gray-200 text-sm font-medium group-hover:text-green-600 transition-colors">@Model.ContactSettings.WhatsAppNumber</p>
+                                </div>
                             </a>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.ContactSettings.BusinessHours))
+                        {
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-gold-100 dark:bg-gold-900/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <span>🕐</span>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400 uppercase tracking-wider mb-0.5">Horario</p>
+                                    <p class="text-gray-800 dark:text-gray-200 text-sm font-medium">@Model.ContactSettings.BusinessHours</p>
+                                </div>
+                            </div>
                         }
                     </div>
+                </div>
+
+                <!-- Social card -->
+                @if (!string.IsNullOrEmpty(Model.ContactSettings.InstagramUrl) || !string.IsNullOrEmpty(Model.ContactSettings.FacebookUrl))
+                {
+                    <div class="card p-7">
+                        <h3 class="font-display text-lg font-bold text-gray-900 dark:text-white mb-5">Síguenos</h3>
+                        <div class="space-y-3">
+                            @if (!string.IsNullOrEmpty(Model.ContactSettings.InstagramUrl))
+                            {
+                                <a href="@Model.ContactSettings.InstagramUrl" target="_blank"
+                                   class="flex items-center gap-4 group">
+                                    <div class="w-10 h-10 bg-pink-50 dark:bg-pink-900/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-pink-100 transition-colors">
+                                        <span>📸</span>
+                                    </div>
+                                    <span class="text-gray-700 dark:text-gray-300 text-sm font-medium group-hover:text-primary-600 transition-colors">Instagram</span>
+                                </a>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.ContactSettings.FacebookUrl))
+                            {
+                                <a href="@Model.ContactSettings.FacebookUrl" target="_blank"
+                                   class="flex items-center gap-4 group">
+                                    <div class="w-10 h-10 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-blue-100 transition-colors">
+                                        <span>👥</span>
+                                    </div>
+                                    <span class="text-gray-700 dark:text-gray-300 text-sm font-medium group-hover:text-blue-600 transition-colors">Facebook</span>
+                                </a>
+                            }
+                        </div>
+                    </div>
                 }
+
+                <!-- Decorative promo banner -->
+                <div class="rounded-3xl overflow-hidden relative">
+                    <img src="https://images.pexels.com/photos/36976741/pexels-photo-36976741.jpeg?auto=compress&cs=tinysrgb&w=600&q=80"
+                         alt="Decoración elegante"
+                         class="w-full h-40 object-cover" />
+                    <div class="absolute inset-0 bg-primary-900/70 flex items-center justify-center">
+                        <p class="text-white font-display text-center text-lg font-semibold px-4">
+                            Tu evento merece<br><em class="not-italic text-gold-300">lo mejor</em>
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
