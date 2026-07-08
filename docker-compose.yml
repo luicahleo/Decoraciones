@@ -30,6 +30,7 @@ services:
       - "8080:8080"
     volumes:
       - app_uploads:/app/wwwroot/uploads
+      - ./logs:/app/logs
     depends_on:
       sqlserver:
         condition: service_healthy
