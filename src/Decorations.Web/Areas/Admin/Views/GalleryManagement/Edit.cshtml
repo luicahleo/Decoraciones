@@ -88,11 +88,6 @@
                     </select>
                 </div>
 
-                <div>
-                    <label asp-for="Item.DisplayOrder" class="form-label">Orden de visualización</label>
-                    <input asp-for="Item.DisplayOrder" type="number" class="form-input" />
-                </div>
-
                 <div class="flex items-center gap-3">
                     <input asp-for="Item.IsActive" type="checkbox" class="w-4 h-4 rounded text-primary-600" />
                     <label asp-for="Item.IsActive" class="form-label mb-0">Publicar (visible en la web)</label>
@@ -169,6 +164,7 @@
         const fileInput = document.getElementById('fileInput');
         const previewContainer = document.getElementById('previewContainer');
         const form = document.getElementById('galleryForm');
+        const showAsGridCheckbox = document.getElementById('showAsGridCheckbox');
 
         let uploadedFiles = [];
 
@@ -233,17 +229,23 @@
         function renderPreview() {
             previewContainer.innerHTML = '';
 
+            // En modo grid no hay portada: se ocultan el botón y el marcado de portada.
+            const isGrid = showAsGridCheckbox && showAsGridCheckbox.checked;
+
             uploadedFiles.forEach((fileData, index) => {
                 const preview = document.createElement('div');
                 preview.className = 'relative group';
+                const coverRing = (!isGrid && fileData.isFeatured) ? '<div class="absolute inset-0 ring-4 ring-amber-500"></div>' : '';
+                const coverButton = isGrid ? '' : `
+                            <button type="button" class="btn btn-sm btn-primary" onclick="toggleFeatured(${index})">
+                                ${fileData.isFeatured ? '★ Portada' : '☆ Portada'}
+                            </button>`;
                 preview.innerHTML = `
                     <div class="relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700" style="aspect-ratio: 1;">
                         <img src="${fileData.base64}" alt="${fileData.file.name}" class="w-full h-full object-cover" />
-                        ${fileData.isFeatured ? '<div class="absolute inset-0 ring-4 ring-amber-500"></div>' : ''}
+                        ${coverRing}
                         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                            <button type="button" class="btn btn-sm btn-primary" onclick="toggleFeatured(${index})">
-                                ${fileData.isFeatured ? '★ Portada' : '☆ Portada'}
-                            </button>
+                            ${coverButton}
                             <button type="button" class="btn btn-sm btn-danger" onclick="removeFile(${index})">
                                 ✕ Eliminar
                             </button>
@@ -319,16 +321,18 @@
 
         // Ocultar los controles de portada cuando la colección es de tipo grid (no aplica portada).
         (function () {
-            const gridCheckbox = document.getElementById('showAsGridCheckbox');
             const note = document.getElementById('gridModeNote');
             function updateCoverControls() {
-                const isGrid = gridCheckbox && gridCheckbox.checked;
+                const isGrid = showAsGridCheckbox && showAsGridCheckbox.checked;
+                // Imágenes existentes: ocultar botón/marcado de portada.
                 document.querySelectorAll('.js-cover-control').forEach(el => el.classList.toggle('hidden', isGrid));
                 document.querySelectorAll('.js-cover-ring').forEach(el => el.classList.toggle('hidden', isGrid));
                 if (note) note.classList.toggle('hidden', !isGrid);
+                // Imágenes nuevas (aún sin guardar): re-dibujar para reflejar el modo.
+                renderPreview();
             }
-            if (gridCheckbox) {
-                gridCheckbox.addEventListener('change', updateCoverControls);
+            if (showAsGridCheckbox) {
+                showAsGridCheckbox.addEventListener('change', updateCoverControls);
                 updateCoverControls();
             }
         })();

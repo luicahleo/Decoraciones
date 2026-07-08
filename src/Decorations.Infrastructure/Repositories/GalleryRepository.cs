@@ -19,6 +19,7 @@ namespace Decorations.Infrastructure.Repositories
             return await this.context.GalleryItems
                 .Include(g => g.MediaAssets)
                 .OrderBy(g => g.DisplayOrder)
+                .ThenByDescending(g => g.CreatedAt)
                 .ToListAsync();
         }
 
@@ -28,6 +29,7 @@ namespace Decorations.Infrastructure.Repositories
                 .Where(g => g.IsActive)
                 .Include(g => g.MediaAssets)
                 .OrderBy(g => g.DisplayOrder)
+                .ThenByDescending(g => g.CreatedAt)
                 .ToListAsync();
         }
 

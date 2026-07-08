@@ -233,6 +233,7 @@ namespace Decorations.UnitTests.Services
                 DisplayOrder = 0
             };
 
+            this.galleryRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<GalleryItem>());
             this.galleryRepositoryMock.Setup(r => r.AddAsync(It.IsAny<GalleryItem>())).Returns(Task.CompletedTask);
             this.galleryRepositoryMock.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
 
@@ -256,6 +257,7 @@ namespace Decorations.UnitTests.Services
                 DisplayOrder = 0
             };
 
+            this.galleryRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<GalleryItem>());
             this.galleryRepositoryMock.Setup(r => r.AddAsync(It.IsAny<GalleryItem>())).Returns(Task.CompletedTask);
             this.galleryRepositoryMock.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
 
@@ -265,6 +267,40 @@ namespace Decorations.UnitTests.Services
             Assert.Equal("Título solo", result.Title);
             Assert.Null(result.Description);
             Assert.Null(result.EventType);
+        }
+
+        [Fact]
+        public async Task CreateGalleryItemAsync_WhenNoExisting_AssignsDisplayOrderZero()
+        {
+            GalleryItem? captured = null;
+            this.galleryRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<GalleryItem>());
+            this.galleryRepositoryMock.Setup(r => r.AddAsync(It.IsAny<GalleryItem>()))
+                .Callback<GalleryItem>(g => captured = g).Returns(Task.CompletedTask);
+            this.galleryRepositoryMock.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
+
+            await this.service.CreateGalleryItemAsync(new GalleryItemDto { Title = "Primera" });
+
+            Assert.Equal(0, captured!.DisplayOrder);
+        }
+
+        [Fact]
+        public async Task CreateGalleryItemAsync_WhenItemsExist_InsertsAtFrontWithLowerDisplayOrder()
+        {
+            GalleryItem? captured = null;
+            IReadOnlyList<GalleryItem> existing = new List<GalleryItem>
+            {
+                new GalleryItem { Id = 1, DisplayOrder = 0 },
+                new GalleryItem { Id = 2, DisplayOrder = -1 }
+            };
+            this.galleryRepositoryMock.Setup(r => r.GetAllAsync()).ReturnsAsync(existing);
+            this.galleryRepositoryMock.Setup(r => r.AddAsync(It.IsAny<GalleryItem>()))
+                .Callback<GalleryItem>(g => captured = g).Returns(Task.CompletedTask);
+            this.galleryRepositoryMock.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
+
+            await this.service.CreateGalleryItemAsync(new GalleryItemDto { Title = "Nueva" });
+
+            // min(0, -1) - 1 = -2  → queda por delante de todas.
+            Assert.Equal(-2, captured!.DisplayOrder);
         }
 
         [Fact]

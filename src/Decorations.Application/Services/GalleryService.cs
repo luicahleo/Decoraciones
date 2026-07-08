@@ -45,6 +45,12 @@ namespace Decorations.Application.Services
         public async Task<GalleryItemDto> CreateGalleryItemAsync(GalleryItemDto dto)
         {
             GalleryItem item = MapToNewEntity(dto);
+
+            // Insertar al principio: menor DisplayOrder que cualquier colección existente,
+            // para que las novedades aparezcan primero sin intervención manual.
+            IReadOnlyList<GalleryItem> existing = await this.galleryRepository.GetAllAsync();
+            item.DisplayOrder = existing.Count > 0 ? existing.Min(g => g.DisplayOrder) - 1 : 0;
+
             await this.galleryRepository.AddAsync(item);
             await this.galleryRepository.SaveChangesAsync();
             return MapToDto(item);
@@ -245,7 +251,8 @@ namespace Decorations.Application.Services
             entity.Description = dto.Description;
             entity.EventType = dto.EventType;
             entity.IsActive = dto.IsActive;
-            entity.DisplayOrder = dto.DisplayOrder;
+            // DisplayOrder no se modifica al editar: el orden se gestiona al crear
+            // (nuevas al principio) y con el reordenamiento drag-and-drop.
             entity.ShowAsGrid = dto.ShowAsGrid;
         }
 
