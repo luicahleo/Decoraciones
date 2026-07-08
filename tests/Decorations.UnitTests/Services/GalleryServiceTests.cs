@@ -454,5 +454,31 @@ namespace Decorations.UnitTests.Services
 
             this.galleryRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Never);
         }
+
+        [Fact]
+        public async Task ReorderGalleryItemsAsync_ReindexesDisplayOrderByPosition()
+        {
+            GalleryItem i1 = new GalleryItem { Id = 1, DisplayOrder = 0 };
+            GalleryItem i2 = new GalleryItem { Id = 2, DisplayOrder = 1 };
+            GalleryItem i3 = new GalleryItem { Id = 3, DisplayOrder = 2 };
+            this.galleryRepositoryMock.Setup(r => r.GetAllAsync())
+                .ReturnsAsync(new List<GalleryItem> { i1, i2, i3 });
+            this.galleryRepositoryMock.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
+
+            await this.service.ReorderGalleryItemsAsync(new List<int> { 3, 1, 2 });
+
+            Assert.Equal(0, i3.DisplayOrder);
+            Assert.Equal(1, i1.DisplayOrder);
+            Assert.Equal(2, i2.DisplayOrder);
+            this.galleryRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task ReorderGalleryItemsAsync_WhenEmpty_DoesNotSave()
+        {
+            await this.service.ReorderGalleryItemsAsync(new List<int>());
+
+            this.galleryRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Never);
+        }
     }
 }

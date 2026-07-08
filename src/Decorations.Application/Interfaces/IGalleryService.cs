@@ -12,6 +12,7 @@ namespace Decorations.Application.Interfaces
         Task UpdateMediaAssetAsync(MediaAssetDto dto);
         Task SetFeaturedMediaAssetAsync(int galleryItemId, int mediaAssetId);
         Task DeleteGalleryItemAsync(int id);
+        Task ReorderGalleryItemsAsync(IReadOnlyList<int> orderedIds);
         Task<MediaAssetDto> AddImageToGalleryItemAsync(int galleryItemId, Stream imageStream, string fileName, string altText);
         Task<MediaAssetDto> AddVideoToGalleryItemAsync(int galleryItemId, string youtubeVideoId, string altText);
         Task DeleteMediaAssetAsync(int mediaAssetId);

@@ -115,6 +115,29 @@ namespace Decorations.Application.Services
             await this.galleryRepository.SaveChangesAsync();
         }
 
+        public async Task ReorderGalleryItemsAsync(IReadOnlyList<int> orderedIds)
+        {
+            if (orderedIds == null || orderedIds.Count == 0)
+            {
+                return;
+            }
+
+            // Reindexa DisplayOrder según la posición recibida: la primera queda en 0, la segunda en 1, etc.
+            IReadOnlyList<GalleryItem> items = await this.galleryRepository.GetAllAsync();
+            Dictionary<int, GalleryItem> itemsById = items.ToDictionary(i => i.Id);
+
+            for (int index = 0; index < orderedIds.Count; index++)
+            {
+                if (itemsById.TryGetValue(orderedIds[index], out GalleryItem? item))
+                {
+                    item.DisplayOrder = index;
+                    this.galleryRepository.Update(item);
+                }
+            }
+
+            await this.galleryRepository.SaveChangesAsync();
+        }
+
         public async Task<MediaAssetDto> AddImageToGalleryItemAsync(int galleryItemId, Stream imageStream, string fileName, string altText)
         {
             // Obtener el GalleryItem para saber el evento (o usar el ID del item como organizador)

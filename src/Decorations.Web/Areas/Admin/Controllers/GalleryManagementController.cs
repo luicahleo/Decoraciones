@@ -187,6 +187,14 @@ namespace Decorations.Web.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reorder(int[] orderedIds)
+        {
+            await this.galleryService.ReorderGalleryItemsAsync(orderedIds);
+            return this.Ok();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleFeatured(int mediaAssetId, int galleryItemId)
         {
             await this.galleryService.SetFeaturedMediaAssetAsync(galleryItemId, mediaAssetId);

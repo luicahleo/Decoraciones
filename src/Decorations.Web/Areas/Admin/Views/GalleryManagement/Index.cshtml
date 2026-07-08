@@ -6,6 +6,8 @@
     <a asp-area="Admin" asp-controller="GalleryManagement" asp-action="Create" class="btn-primary">+ Añadir elemento</a>
 </div>
 
+@Html.AntiForgeryToken()
+
 @if (!Model.GalleryItems.Any())
 {
     <div class="card p-12 text-center">
@@ -14,10 +16,16 @@
 }
 else
 {
+    <div class="flex items-center justify-between mb-3 px-1">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Arrastra <span class="text-gray-400">⠿</span> para reordenar. El orden se refleja en la web pública.</p>
+        <span id="reorderStatus" class="text-sm font-medium opacity-0 transition-opacity"></span>
+    </div>
+
     <div class="card overflow-hidden">
         <table class="w-full text-sm">
             <thead class="bg-gray-50 dark:bg-gray-800">
                 <tr>
+                    <th class="w-10 px-4 py-4"></th>
                     <th class="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">Título</th>
                     <th class="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">Tipo</th>
                     <th class="text-left px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">Medios</th>
@@ -25,10 +33,11 @@ else
                     <th class="text-right px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">Acciones</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+            <tbody id="galleryRows" class="divide-y divide-gray-100 dark:divide-gray-800">
                 @foreach (var item in Model.GalleryItems)
                 {
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <tr data-id="@item.Id" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                        <td class="js-drag-handle px-4 py-4 text-center text-gray-300 hover:text-gray-500 dark:hover:text-gray-300 cursor-grab select-none" title="Arrastrar para reordenar">⠿</td>
                         <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">@item.Title</td>
                         <td class="px-6 py-4 text-gray-600 dark:text-gray-400">@item.EventType</td>
                         <td class="px-6 py-4 text-gray-600 dark:text-gray-400">@item.MediaAssets.Count archivos</td>
@@ -57,4 +66,58 @@ else
             </tbody>
         </table>
     </div>
+}
+
+@section Scripts {
+    <script src="~/lib/sortablejs/Sortable.min.js"></script>
+    <script>
+        (function () {
+            const tbody = document.getElementById('galleryRows');
+            if (!tbody || typeof Sortable === 'undefined') return;
+
+            const statusEl = document.getElementById('reorderStatus');
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+
+            function showStatus(text, ok) {
+                if (!statusEl) return;
+                statusEl.textContent = text;
+                statusEl.classList.remove('opacity-0', 'text-green-600', 'text-red-500');
+                statusEl.classList.add(ok ? 'text-green-600' : 'text-red-500');
+                statusEl.classList.add('opacity-100');
+            }
+
+            async function saveOrder() {
+                const ids = [...tbody.querySelectorAll('tr')].map(tr => tr.dataset.id);
+                const formData = new FormData();
+                ids.forEach(id => formData.append('orderedIds', id));
+                if (tokenInput) formData.append('__RequestVerificationToken', tokenInput.value);
+
+                showStatus('Guardando orden…', true);
+                statusEl.classList.remove('text-green-600');
+
+                try {
+                    const response = await fetch('@Url.Action("Reorder", new { area = "Admin", controller = "GalleryManagement" })', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (response.ok) {
+                        showStatus('✓ Orden guardado', true);
+                        setTimeout(() => statusEl.classList.replace('opacity-100', 'opacity-0'), 2000);
+                    } else {
+                        showStatus('Error al guardar el orden', false);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showStatus('Error al guardar el orden', false);
+                }
+            }
+
+            new Sortable(tbody, {
+                handle: '.js-drag-handle',
+                animation: 150,
+                ghostClass: 'opacity-40',
+                onEnd: saveOrder
+            });
+        })();
+    </script>
 }
