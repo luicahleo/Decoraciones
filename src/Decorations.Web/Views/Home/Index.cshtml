@@ -124,12 +124,17 @@
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-12">
                 @foreach (var item in Model.GalleryPreview)
                 {
-                    var firstImage = item.MediaAssets.FirstOrDefault(m => m.MediaType == Decorations.Domain.Enums.MediaType.Image);
-                    if (firstImage != null)
+                    // Portada: prioriza la imagen marcada como destacada (IsFeatured); si ninguna, usa la de menor orden.
+                    var coverImage = item.MediaAssets
+                        .Where(m => m.MediaType == Decorations.Domain.Enums.MediaType.Image)
+                        .OrderByDescending(m => m.IsFeatured)
+                        .ThenBy(m => m.DisplayOrder)
+                        .FirstOrDefault();
+                    if (coverImage != null)
                     {
                         <div class="overflow-hidden rounded-2xl aspect-square group cursor-pointer relative">
-                            <img src="@firstImage.ThumbnailPath"
-                                 alt="@firstImage.AltText"
+                            <img src="@coverImage.ThumbnailPath"
+                                 alt="@coverImage.AltText"
                                  loading="lazy"
                                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                             <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">

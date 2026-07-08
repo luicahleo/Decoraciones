@@ -369,5 +369,54 @@ namespace Decorations.UnitTests.Services
             Assert.Equal("Desc test", result.Description);
             Assert.Equal("Comunión", result.EventType);
         }
+
+        [Fact]
+        public async Task SetFeaturedMediaAssetAsync_WhenSelected_MarksSelectedAndUnmarksOthers()
+        {
+            GalleryItem item = new GalleryItem
+            {
+                Id = 1,
+                MediaAssets = new List<MediaAsset>
+                {
+                    new MediaAsset { Id = 10, IsFeatured = true },
+                    new MediaAsset { Id = 11, IsFeatured = false },
+                    new MediaAsset { Id = 12, IsFeatured = false }
+                }
+            };
+            this.galleryRepositoryMock.Setup(r => r.GetByIdWithMediaAsync(1)).ReturnsAsync(item);
+            this.galleryRepositoryMock.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
+
+            await this.service.SetFeaturedMediaAssetAsync(1, 11);
+
+            Assert.False(item.MediaAssets.First(m => m.Id == 10).IsFeatured);
+            Assert.True(item.MediaAssets.First(m => m.Id == 11).IsFeatured);
+            Assert.False(item.MediaAssets.First(m => m.Id == 12).IsFeatured);
+        }
+
+        [Fact]
+        public async Task SetFeaturedMediaAssetAsync_WhenSelected_CallsSaveChangesOnce()
+        {
+            GalleryItem item = new GalleryItem
+            {
+                Id = 1,
+                MediaAssets = new List<MediaAsset> { new MediaAsset { Id = 10, IsFeatured = false } }
+            };
+            this.galleryRepositoryMock.Setup(r => r.GetByIdWithMediaAsync(1)).ReturnsAsync(item);
+            this.galleryRepositoryMock.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
+
+            await this.service.SetFeaturedMediaAssetAsync(1, 10);
+
+            this.galleryRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task SetFeaturedMediaAssetAsync_WhenGalleryNotFound_DoesNotCallSaveChanges()
+        {
+            this.galleryRepositoryMock.Setup(r => r.GetByIdWithMediaAsync(99)).ReturnsAsync((GalleryItem?)null);
+
+            await this.service.SetFeaturedMediaAssetAsync(99, 10);
+
+            this.galleryRepositoryMock.Verify(r => r.SaveChangesAsync(), Times.Never);
+        }
     }
 }

@@ -184,5 +184,13 @@ namespace Decorations.Web.Areas.Admin.Controllers
             await this.galleryService.DeleteMediaAssetAsync(mediaAssetId);
             return this.RedirectToAction(nameof(this.Edit), new { id = galleryItemId });
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleFeatured(int mediaAssetId, int galleryItemId)
+        {
+            await this.galleryService.SetFeaturedMediaAssetAsync(galleryItemId, mediaAssetId);
+            return this.RedirectToAction(nameof(this.Edit), new { id = galleryItemId });
+        }
     }
 }

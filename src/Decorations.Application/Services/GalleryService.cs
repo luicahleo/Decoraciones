@@ -79,6 +79,23 @@ namespace Decorations.Application.Services
             await this.mediaAssetRepository.SaveChangesAsync();
         }
 
+        public async Task SetFeaturedMediaAssetAsync(int galleryItemId, int mediaAssetId)
+        {
+            // Marca la imagen seleccionada como portada y desmarca las demás de la misma galería.
+            GalleryItem? item = await this.galleryRepository.GetByIdWithMediaAsync(galleryItemId);
+            if (item == null)
+            {
+                return;
+            }
+
+            foreach (MediaAsset asset in item.MediaAssets)
+            {
+                asset.IsFeatured = asset.Id == mediaAssetId;
+            }
+
+            await this.galleryRepository.SaveChangesAsync();
+        }
+
         public async Task DeleteGalleryItemAsync(int id)
         {
             GalleryItem? item = await this.galleryRepository.GetByIdWithMediaAsync(id);

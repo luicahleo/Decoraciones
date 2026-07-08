@@ -7,6 +7,52 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Editar elemento</h1>
     </div>
 
+    <!-- Sección de imágenes existentes: FUERA del formulario principal.
+         Cada acción (portada / eliminar) es su propio formulario independiente.
+         No pueden anidarse dentro de #galleryForm porque el HTML no permite formularios anidados. -->
+    @if (Model?.Item?.MediaAssets != null && Model.Item.MediaAssets.Any(m => m.MediaType == Decorations.Domain.Enums.MediaType.Image))
+    {
+        <div class="card p-6 space-y-4 mb-6">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Imágenes actuales</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                @foreach (var asset in Model.Item.MediaAssets.Where(m => m.MediaType == Decorations.Domain.Enums.MediaType.Image))
+                {
+                    <div class="relative group">
+                        <div class="relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700" style="aspect-ratio: 1;">
+                            <img src="@asset.ThumbnailPath" alt="@asset.AltText" class="w-full h-full object-cover" />
+                            @if (asset.IsFeatured)
+                            {
+                                <div class="absolute inset-0 ring-4 ring-amber-500 pointer-events-none"></div>
+                            }
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                @if (!asset.IsFeatured)
+                                {
+                                    <form method="post" asp-area="Admin" asp-controller="GalleryManagement" asp-action="ToggleFeatured">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="mediaAssetId" value="@asset.Id" />
+                                        <input type="hidden" name="galleryItemId" value="@Model.Item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-primary">☆ Portada</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="btn btn-sm btn-success">★ Portada</span>
+                                }
+                                <form method="post" asp-area="Admin" asp-controller="GalleryManagement" asp-action="DeleteMedia">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="mediaAssetId" value="@asset.Id" />
+                                    <input type="hidden" name="galleryItemId" value="@Model.Item.Id" />
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar esta imagen?')">✕ Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
     <form asp-area="Admin" asp-controller="GalleryManagement" asp-action="Edit" method="post" enctype="multipart/form-data" id="galleryForm">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Item.Id" />
@@ -14,18 +60,18 @@
             <!-- Datos del elemento de galería -->
             <div class="space-y-4">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información general</h2>
-                
+
                 <div>
                     <label asp-for="Item.Title" class="form-label">Título *</label>
                     <input asp-for="Item.Title" class="form-input" placeholder="Ej: Cumpleaños infantil" />
                     <span asp-validation-for="Item.Title" class="text-red-500 text-sm mt-1 block"></span>
                 </div>
-                
+
                 <div>
                     <label asp-for="Item.Description" class="form-label">Descripción</label>
                     <textarea asp-for="Item.Description" rows="3" class="form-input resize-none"></textarea>
                 </div>
-                
+
                 <div>
                     <label asp-for="Item.EventType" class="form-label">Tipo de evento</label>
                     <select asp-for="Item.EventType" class="form-input">
@@ -37,12 +83,12 @@
                         <option value="Otro">Otro</option>
                     </select>
                 </div>
-                
+
                 <div>
                     <label asp-for="Item.DisplayOrder" class="form-label">Orden de visualización</label>
                     <input asp-for="Item.DisplayOrder" type="number" class="form-input" />
                 </div>
-                
+
                 <div class="flex items-center gap-3">
                     <input asp-for="Item.IsActive" type="checkbox" class="w-4 h-4 rounded text-primary-600" />
                     <label asp-for="Item.IsActive" class="form-label mb-0">Publicar (visible en la web)</label>
@@ -54,7 +100,7 @@
             <!-- Opciones de visualización -->
             <div class="space-y-4">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Opciones de visualización</h2>
-                
+
                 <div class="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                     <input asp-for="Item.ShowAsGrid" type="checkbox" class="w-4 h-4 rounded text-primary-600" id="showAsGridCheckbox" />
                     <div>
@@ -66,54 +112,10 @@
 
             <hr class="border-gray-200 dark:border-gray-700" />
 
-            <!-- Sección de imágenes existentes -->
-            @if (Model?.Item?.MediaAssets != null && Model.Item.MediaAssets.Count > 0)
-            {
-                <div class="space-y-4">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Imágenes actuales</h2>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        @foreach (var asset in Model.Item.MediaAssets.Where(m => m.MediaType == Decorations.Domain.Enums.MediaType.Image))
-                        {
-                            <div class="relative group">
-                                <div class="relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700" style="aspect-ratio: 1;">
-                                    <img src="/@asset.ThumbnailPath" alt="@asset.AltText" class="w-full h-full object-cover" />
-                                    @if (asset.IsFeatured)
-                                    {
-                                        <div class="absolute inset-0 ring-4 ring-amber-500"></div>
-                                    }
-                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                        @if (!asset.IsFeatured)
-                                        {
-                                            <form method="post" asp-area="Admin" asp-controller="GalleryManagement" asp-action="ToggleFeatured" style="display: inline;">
-                                                <input type="hidden" name="mediaAssetId" value="@asset.Id" />
-                                                <input type="hidden" name="galleryItemId" value="@Model.Item.Id" />
-                                                <button type="submit" class="btn btn-sm btn-primary">☆ Portada</button>
-                                            </form>
-                                        }
-                                        else
-                                        {
-                                            <span class="btn btn-sm btn-success">★ Portada</span>
-                                        }
-                                        <form method="post" asp-area="Admin" asp-controller="GalleryManagement" asp-action="DeleteMedia" style="display: inline;">
-                                            <input type="hidden" name="mediaAssetId" value="@asset.Id" />
-                                            <input type="hidden" name="galleryItemId" value="@Model.Item.Id" />
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar esta imagen?')">✕ Eliminar</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
-
-                <hr class="border-gray-200 dark:border-gray-700" />
-            }
-
             <!-- Sección de carga de nuevas imágenes -->
             <div class="space-y-4">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Agregar imágenes</h2>
-                
+
                 <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-primary-500 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" id="dropZone">
                     <div>
                         <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
@@ -133,16 +135,16 @@
 
             <!-- Vídeos -->
             <hr class="border-gray-200 dark:border-gray-700" />
-            
+
             <div class="space-y-4">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Contenido adicional (opcional)</h2>
-                
+
                 <div>
                     <label asp-for="YoutubeVideoId" class="form-label">ID de vídeo de YouTube</label>
                     <input asp-for="YoutubeVideoId" class="form-input" placeholder="Ej: dQw4w9WgXcQ" />
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Solo el ID del vídeo (la parte después de ?v= en la URL).</p>
                 </div>
-                
+
                 <div>
                     <label asp-for="VideoAltText" class="form-label">Descripción del vídeo</label>
                     <input asp-for="VideoAltText" class="form-input" placeholder="Descripción del vídeo" />
@@ -163,7 +165,7 @@
         const fileInput = document.getElementById('fileInput');
         const previewContainer = document.getElementById('previewContainer');
         const form = document.getElementById('galleryForm');
-        
+
         let uploadedFiles = [];
 
         // Drag & drop
@@ -226,7 +228,7 @@
 
         function renderPreview() {
             previewContainer.innerHTML = '';
-            
+
             uploadedFiles.forEach((fileData, index) => {
                 const preview = document.createElement('div');
                 preview.className = 'relative group';
