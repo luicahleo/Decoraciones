@@ -68,7 +68,11 @@
             <!-- Sección de imágenes -->
             <div class="space-y-4">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Imágenes de la galería</h2>
-                
+
+                <p id="gridModeNote" class="hidden text-sm text-gray-600 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+                    Modo galería (grid) activado: en el inicio se muestran las primeras imágenes de la colección. No se selecciona portada.
+                </p>
+
                 <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-primary-500 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors" id="dropZone">
                     <div>
                         <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
@@ -105,7 +109,7 @@
             </div>
 
             <div class="flex gap-3 pt-4">
-                <button type="submit" class="btn-primary">Guardar</button>
+                <button type="submit" id="submitBtn" class="btn-primary inline-flex items-center justify-center gap-2">Guardar</button>
                 <a asp-area="Admin" asp-controller="GalleryManagement" asp-action="Index" class="btn-secondary">Cancelar</a>
             </div>
         </div>
@@ -118,6 +122,7 @@
         const fileInput = document.getElementById('fileInput');
         const previewContainer = document.getElementById('previewContainer');
         const showAsGridCheckbox = document.getElementById('showAsGridCheckbox');
+        const gridModeNote = document.getElementById('gridModeNote');
         const form = document.getElementById('galleryForm');
         
         let uploadedFiles = [];
@@ -147,6 +152,12 @@
         dropZone.addEventListener('drop', handleDrop);
         dropZone.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', handleFileSelect);
+
+        // Al cambiar el modo grid: mostrar/ocultar la nota y re-renderizar la vista previa.
+        showAsGridCheckbox.addEventListener('change', () => {
+            gridModeNote.classList.toggle('hidden', !showAsGridCheckbox.checked);
+            renderPreview();
+        });
 
         function handleDrop(e) {
             const dt = e.dataTransfer;
@@ -182,18 +193,24 @@
 
         function renderPreview() {
             previewContainer.innerHTML = '';
-            
+
+            // En modo grid no hay portada: se ocultan el botón y el marcado de portada.
+            const isGrid = showAsGridCheckbox.checked;
+
             uploadedFiles.forEach((fileData, index) => {
                 const preview = document.createElement('div');
                 preview.className = 'relative group';
+                const coverRing = (!isGrid && fileData.isFeatured) ? '<div class="absolute inset-0 ring-4 ring-amber-500"></div>' : '';
+                const coverButton = isGrid ? '' : `
+                            <button type="button" class="btn btn-sm btn-primary" onclick="toggleFeatured(${index})">
+                                ${fileData.isFeatured ? '★ Portada' : '☆ Portada'}
+                            </button>`;
                 preview.innerHTML = `
                     <div class="relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700" style="aspect-ratio: 1;">
                         <img src="${fileData.base64}" alt="${fileData.file.name}" class="w-full h-full object-cover" />
-                        ${fileData.isFeatured ? '<div class="absolute inset-0 ring-4 ring-amber-500"></div>' : ''}
+                        ${coverRing}
                         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                            <button type="button" class="btn btn-sm btn-primary" onclick="toggleFeatured(${index})">
-                                ${fileData.isFeatured ? '★ Portada' : '☆ Portada'}
-                            </button>
+                            ${coverButton}
                             <button type="button" class="btn btn-sm btn-danger" onclick="removeFile(${index})">
                                 ✕ Eliminar
                             </button>
@@ -216,6 +233,18 @@
         }
 
         // Enviar archivos al servidor
+        const submitBtn = document.getElementById('submitBtn');
+        const submitLabel = submitBtn ? submitBtn.textContent.trim() : '';
+        const SPINNER = '<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>';
+
+        function setSubmitting(isSubmitting) {
+            if (!submitBtn) return;
+            submitBtn.disabled = isSubmitting;
+            submitBtn.classList.toggle('opacity-60', isSubmitting);
+            submitBtn.classList.toggle('cursor-not-allowed', isSubmitting);
+            submitBtn.innerHTML = isSubmitting ? (SPINNER + ' Guardando...') : submitLabel;
+        }
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -224,12 +253,14 @@
                 return;
             }
 
+            setSubmitting(true);
             const formData = new FormData(form);
 
             // Agregar archivos y metadata
             uploadedFiles.forEach((fileData, index) => {
                 formData.append('imageFiles', fileData.file);
-                if (fileData.isFeatured) {
+                // En modo grid no se envía portada (no aplica).
+                if (!showAsGridCheckbox.checked && fileData.isFeatured) {
                     formData.append(`featuredImageIndex`, index);
                 }
             });
@@ -245,10 +276,12 @@
                 } else {
                     const errorText = await response.text();
                     alert('Error al guardar: ' + errorText);
+                    setSubmitting(false);
                 }
             } catch (error) {
                 console.error('Error:', error);
                 alert('Error al enviar los datos');
+                setSubmitting(false);
             }
         });
     </script>

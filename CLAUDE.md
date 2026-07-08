@@ -253,6 +253,28 @@ docker compose up -d --build
 # Panel admin en http://localhost:8080/Admin
 ```
 
+### ⚠️ Tailwind CSS está precompilado — recompilar al tocar clases
+
+El CSS de Tailwind se genera a `wwwroot/css/output.css` con un paso de build **manual**. El `Dockerfile` **NO** recompila el CSS: `dotnet publish` copia el `output.css` tal cual está en el repo. Tailwind solo incluye en el output las clases que **encuentra escaneando** los `.cshtml` (ver `content` en `tailwind.config.js`).
+
+**Consecuencia:** si añades o cambias clases de Tailwind en cualquier `.cshtml` y NO recompilas, esas clases faltarán en `output.css` y en producción el elemento saldrá **sin estilos** (aunque en tu editor "se vean" correctas).
+
+Flujo correcto al modificar clases CSS:
+
+```bash
+# 1. Recompilar el CSS (escanea los .cshtml y regenera output.css)
+cd src/Decorations.Web && npm run build:css
+
+# 2. Reconstruir el contenedor (ya incluye el output.css actualizado)
+docker compose up -d --build app
+```
+
+- `npm run build:css` → build único minificado. `npm run watch:css` → recompila en caliente durante desarrollo.
+- **Commitea siempre `output.css`** junto con los cambios de las vistas.
+- Para verificar que una clase entró: `grep -F 'nombre-clase' src/Decorations.Web/wwwroot/css/output.css`.
+
+Los scripts `rebuild.ps1` / `rebuild.sh` de la raíz reconstruyen y levantan el contenedor (no recompilan CSS; hazlo antes si tocaste clases).
+
 ---
 
 ## 10. Panel admin — URL y acceso

@@ -124,23 +124,72 @@
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-12">
                 @foreach (var item in Model.GalleryPreview)
                 {
-                    // Portada: prioriza la imagen marcada como destacada (IsFeatured); si ninguna, usa la de menor orden.
-                    var coverImage = item.MediaAssets
+                    var images = item.MediaAssets
                         .Where(m => m.MediaType == Decorations.Domain.Enums.MediaType.Image)
-                        .OrderByDescending(m => m.IsFeatured)
-                        .ThenBy(m => m.DisplayOrder)
-                        .FirstOrDefault();
-                    if (coverImage != null)
+                        .OrderBy(m => m.DisplayOrder)
+                        .ToList();
+
+                    if (!images.Any())
                     {
-                        <div class="overflow-hidden rounded-2xl aspect-square group cursor-pointer relative">
+                        continue;
+                    }
+
+                    if (item.ShowAsGrid)
+                    {
+                        // Tipo grid: mosaico con las primeras 4 imágenes (sin portada destacada).
+                        var mosaic = images.Take(4).ToList();
+                        var extra = images.Count - mosaic.Count;
+                        // Layout según cuántas imágenes haya, manteniendo la celda cuadrada.
+                        var mosaicClass = mosaic.Count >= 4 ? "grid-cols-2 grid-rows-2"
+                            : mosaic.Count == 3 ? "grid-cols-2 grid-rows-2"
+                            : mosaic.Count == 2 ? "grid-cols-2 grid-rows-1"
+                            : "grid-cols-1 grid-rows-1";
+
+                        <a asp-controller="Gallery" asp-action="Details" asp-route-id="@item.Id"
+                           class="block overflow-hidden rounded-2xl aspect-square group cursor-pointer relative">
+                            <div class="w-full h-full grid gap-0.5 @mosaicClass">
+                                @for (int i = 0; i < mosaic.Count; i++)
+                                {
+                                    var img = mosaic[i];
+                                    // Con 3 imágenes la primera ocupa la columna izquierda completa.
+                                    var spanClass = mosaic.Count == 3 && i == 0 ? "row-span-2" : string.Empty;
+                                    <div class="relative overflow-hidden @spanClass">
+                                        <img src="@img.ThumbnailPath"
+                                             alt="@img.AltText"
+                                             loading="lazy"
+                                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                        @if (i == mosaic.Count - 1 && extra > 0)
+                                        {
+                                            <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                                <span class="text-white text-2xl font-semibold">+@extra</span>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4 pointer-events-none">
+                                <span class="text-white text-sm font-medium">@item.Title</span>
+                            </div>
+                        </a>
+                    }
+                    else
+                    {
+                        // Tipo portada: prioriza la imagen destacada (IsFeatured); si ninguna, la de menor orden.
+                        var coverImage = images
+                            .OrderByDescending(m => m.IsFeatured)
+                            .ThenBy(m => m.DisplayOrder)
+                            .First();
+
+                        <a asp-controller="Gallery" asp-action="Details" asp-route-id="@item.Id"
+                           class="block overflow-hidden rounded-2xl aspect-square group cursor-pointer relative">
                             <img src="@coverImage.ThumbnailPath"
                                  alt="@coverImage.AltText"
                                  loading="lazy"
                                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4 pointer-events-none">
                                 <span class="text-white text-sm font-medium">@item.Title</span>
                             </div>
-                        </div>
+                        </a>
                     }
                 }
             </div>

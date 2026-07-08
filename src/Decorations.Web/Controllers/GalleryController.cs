@@ -27,5 +27,25 @@ namespace Decorations.Web.Controllers
 
             return this.View(viewModel);
         }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            GalleryItemDto? item = await this.galleryService.GetGalleryItemByIdAsync(id);
+            if (item == null || !item.IsActive)
+            {
+                return this.NotFound();
+            }
+
+            GalleryDetailsViewModel viewModel = new GalleryDetailsViewModel
+            {
+                Item = item,
+                PageTitle = $"{item.Title} - Nuestros Trabajos",
+                MetaDescription = string.IsNullOrWhiteSpace(item.Description)
+                    ? "Detalle de nuestra decoración para eventos especiales."
+                    : item.Description
+            };
+
+            return this.View(viewModel);
+        }
     }
 }

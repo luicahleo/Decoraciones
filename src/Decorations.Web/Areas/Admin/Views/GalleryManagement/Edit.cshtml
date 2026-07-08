@@ -15,6 +15,10 @@
         <div class="card p-6 space-y-4 mb-6">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Imágenes actuales</h2>
 
+            <p id="gridModeNote" class="hidden text-sm text-gray-600 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+                Modo galería (grid) activado: en el inicio se muestran las primeras imágenes de la colección. No se selecciona portada.
+            </p>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 @foreach (var asset in Model.Item.MediaAssets.Where(m => m.MediaType == Decorations.Domain.Enums.MediaType.Image))
                 {
@@ -23,12 +27,12 @@
                             <img src="@asset.ThumbnailPath" alt="@asset.AltText" class="w-full h-full object-cover" />
                             @if (asset.IsFeatured)
                             {
-                                <div class="absolute inset-0 ring-4 ring-amber-500 pointer-events-none"></div>
+                                <div class="absolute inset-0 ring-4 ring-amber-500 pointer-events-none js-cover-ring"></div>
                             }
                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                 @if (!asset.IsFeatured)
                                 {
-                                    <form method="post" asp-area="Admin" asp-controller="GalleryManagement" asp-action="ToggleFeatured">
+                                    <form method="post" asp-area="Admin" asp-controller="GalleryManagement" asp-action="ToggleFeatured" class="js-cover-control">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="mediaAssetId" value="@asset.Id" />
                                         <input type="hidden" name="galleryItemId" value="@Model.Item.Id" />
@@ -37,7 +41,7 @@
                                 }
                                 else
                                 {
-                                    <span class="btn btn-sm btn-success">★ Portada</span>
+                                    <span class="btn btn-sm btn-success js-cover-control">★ Portada</span>
                                 }
                                 <form method="post" asp-area="Admin" asp-controller="GalleryManagement" asp-action="DeleteMedia">
                                     @Html.AntiForgeryToken()
@@ -152,7 +156,7 @@
             </div>
 
             <div class="flex gap-3 pt-4">
-                <button type="submit" class="btn-primary">Guardar cambios</button>
+                <button type="submit" id="submitBtn" class="btn-primary inline-flex items-center justify-center gap-2">Guardar cambios</button>
                 <a asp-area="Admin" asp-controller="GalleryManagement" asp-action="Index" class="btn-secondary">Cancelar</a>
             </div>
         </div>
@@ -261,11 +265,24 @@
             renderPreview();
         }
 
+        const submitBtn = document.getElementById('submitBtn');
+        const submitLabel = submitBtn ? submitBtn.textContent.trim() : '';
+        const SPINNER = '<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>';
+
+        function setSubmitting(isSubmitting) {
+            if (!submitBtn) return;
+            submitBtn.disabled = isSubmitting;
+            submitBtn.classList.toggle('opacity-60', isSubmitting);
+            submitBtn.classList.toggle('cursor-not-allowed', isSubmitting);
+            submitBtn.innerHTML = isSubmitting ? (SPINNER + ' Guardando...') : submitLabel;
+        }
+
         // Enviar archivos al servidor
         form.addEventListener('submit', async (e) => {
             // Si hay archivos nuevos, procesarlos de forma custom
             if (uploadedFiles.length > 0) {
                 e.preventDefault();
+                setSubmitting(true);
 
                 const formData = new FormData(form);
 
@@ -285,13 +302,35 @@
                     } else {
                         const errorText = await response.text();
                         alert('Error al guardar: ' + errorText);
+                        setSubmitting(false);
                     }
                 } catch (error) {
                     console.error('Error:', error);
                     alert('Error al enviar los datos');
+                    setSubmitting(false);
                 }
             }
-            // Si no hay archivos nuevos, dejar que el formulario se envíe normalmente
+            else
+            {
+                // Envío normal del navegador: mostrar feedback mientras se procesa.
+                setSubmitting(true);
+            }
         });
+
+        // Ocultar los controles de portada cuando la colección es de tipo grid (no aplica portada).
+        (function () {
+            const gridCheckbox = document.getElementById('showAsGridCheckbox');
+            const note = document.getElementById('gridModeNote');
+            function updateCoverControls() {
+                const isGrid = gridCheckbox && gridCheckbox.checked;
+                document.querySelectorAll('.js-cover-control').forEach(el => el.classList.toggle('hidden', isGrid));
+                document.querySelectorAll('.js-cover-ring').forEach(el => el.classList.toggle('hidden', isGrid));
+                if (note) note.classList.toggle('hidden', !isGrid);
+            }
+            if (gridCheckbox) {
+                gridCheckbox.addEventListener('change', updateCoverControls);
+                updateCoverControls();
+            }
+        })();
     </script>
 }
