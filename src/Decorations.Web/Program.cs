@@ -27,11 +27,11 @@ try
 
     EnsureLogsDirectoryExists(app);
 
-    // Seed solo en desarrollo
-    if (app.Environment.IsDevelopment())
-    {
-        await DatabaseSeeder.SeedAsync(app.Services, app.Configuration);
-    }
+    // Aplica migraciones EF Core y siembra datos base en TODOS los entornos.
+    // SeedAsync es idempotente: crea rol/admin/settings solo si faltan.
+    // El admin solo se crea si SeedSettings:AdminPassword está definido (en Producción
+    // llega por la variable de entorno SeedSettings__AdminPassword del .env del host).
+    await DatabaseSeeder.SeedAsync(app.Services, app.Configuration);
 
     app.UseMiddleware<GlobalExceptionMiddleware>();
 

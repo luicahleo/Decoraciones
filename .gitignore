@@ -11,6 +11,11 @@ npm-debug.log*
 logs/
 *.log
 
+## Secretos de entorno (nunca versionar; viven en el .env del host)
+.env
+*.env
+!.env.example
+
 ## Visual Studio
 .vs/
 *.user

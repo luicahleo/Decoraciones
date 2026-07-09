@@ -1,0 +1,39 @@
+# docker-compose para el VPS. Ubicación en el servidor: /var/apps/decoraciones/docker-compose.yml
+# NO levanta SQL Server: usa el contenedor compartido `trajano-sqlserver` vía la red externa.
+services:
+  decoraciones:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    image: decoraciones:latest
+    container_name: decoraciones
+    restart: unless-stopped
+    # Secretos (cadena de conexión + credenciales admin) — archivo NO versionado, permisos 600.
+    env_file:
+      - .env
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ASPNETCORE_URLS: "http://+:8080"
+      TZ: "America/La_Paz"
+    # Solo accesible desde el host (nginx hace proxy_pass a 127.0.0.1:8082). No expuesto a Internet.
+    ports:
+      - "127.0.0.1:8082:8080"
+    volumes:
+      - ./uploads:/app/wwwroot/uploads
+      - ./logs:/app/logs
+    networks:
+      - trajano-shared-network
+    # RAM del VPS algo justa (7.7 GiB): límites suaves para no competir con SQL Server.
+    mem_limit: 512m
+    cpus: 1.0
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/ >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+networks:
+  # Red compartida ya existente donde vive trajano-sqlserver. NO crear una nueva.
+  trajano-shared-network:
+    external: true

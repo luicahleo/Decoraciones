@@ -1,0 +1,21 @@
+# Imagen runtime-only para el VPS (patrón icarus).
+# Los binarios ya vienen publicados por el runner de GitHub Actions
+# y llegan por rsync a ./web (contexto de build = /var/apps/decoraciones).
+# NO compila: solo copia el publish y arranca la DLL.
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
+
+# curl es necesario para el healthcheck definido en docker-compose.yml
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Binarios publicados (rsync los deja en ./web)
+COPY web/ ./
+
+# Puntos de montaje (los bind mounts del host los sobreescriben en runtime)
+RUN mkdir -p /app/wwwroot/uploads /app/logs
+
+ENTRYPOINT ["dotnet", "Decorations.Web.dll"]
