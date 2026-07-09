@@ -221,7 +221,9 @@ docker compose down -v
 ```
 
 ### Migraciones y seed
-Las migraciones EF Core se aplican **automáticamente al arrancar** la aplicación (`DatabaseSeeder.SeedAsync` llama `MigrateAsync()`). El seed solo corre en `ASPNETCORE_ENVIRONMENT=Development`.
+Las migraciones EF Core y el seed se aplican **automáticamente al arrancar** en **todos los entornos** (`Program.cs` llama a `DatabaseSeeder.SeedAsync`, que a su vez ejecuta `MigrateAsync()`). El seed es **idempotente**: crea rol/admin/settings solo si faltan.
+
+El **usuario admin** solo se crea si `SeedSettings:AdminPassword` está definido (en Producción, vía la variable de entorno `SeedSettings__AdminPassword` del `.env`) y aún no existe. La contraseña **debe cumplir la política de Identity**: ≥8 caracteres, mayúscula, minúscula, dígito **y al menos un símbolo no alfanumérico**; si no la cumple, el seeder loguea el error a nivel `Error` y la app arranca **sin** admin (no crashea).
 
 ### Credenciales por defecto (solo desarrollo)
 - Admin: `admin@decoraciones.com` / `Admin@123456`
