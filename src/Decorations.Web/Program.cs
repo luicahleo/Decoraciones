@@ -21,7 +21,14 @@ try
 
     builder.Services.AddInfrastructureServices(builder.Configuration);
     builder.Services.AddApplicationServices();
-    builder.Services.AddControllersWithViews();
+    builder.Services.AddControllersWithViews(options =>
+    {
+        // Desactiva el [Required] implícito que ASP.NET Core añade a las propiedades
+        // string no anulables cuando #nullable enable está activo. Sin esto, dejar
+        // vacíos campos opcionales (Instagram, Facebook, dirección...) invalida el
+        // ModelState y el formulario no se guarda. La validación real se hace con FluentValidation.
+        options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+    });
 
     WebApplication app = builder.Build();
 
