@@ -87,7 +87,7 @@ namespace Decorations.Infrastructure.Persistence.Seed
                 ContactSettings defaultSettings = new ContactSettings
                 {
                     BusinessName = "Decoraciones Especiales",
-                    WhatsAppNumber = "+34600000000",
+                    WhatsAppNumber = "+34631327666",
                     Email = "info@decoraciones.com",
                     InstagramUrl = string.Empty,
                     FacebookUrl = string.Empty,
