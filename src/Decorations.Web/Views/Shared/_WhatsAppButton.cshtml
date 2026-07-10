@@ -1,11 +1,11 @@
 @inject Decorations.Application.Interfaces.IContactSettingsService ContactSettingsService
 @{
     var settings = await ContactSettingsService.GetContactSettingsAsync();
-    string whatsappNumber = settings.WhatsAppNumber.Replace("+", "").Replace(" ", "");
-    string whatsappUrl = $"https://wa.me/{whatsappNumber}?text=Hola,%20me%20gustaría%20solicitar%20información%20sobre%20decoraciones.";
 }
 @if (!string.IsNullOrWhiteSpace(settings.WhatsAppNumber))
 {
+    string whatsappNumber = settings.WhatsAppNumber.Replace("+", "").Replace(" ", "");
+    string whatsappUrl = $"https://wa.me/{whatsappNumber}?text=Hola,%20me%20gustaría%20solicitar%20información%20sobre%20decoraciones.";
     <a href="@whatsappUrl"
        target="_blank"
        rel="noopener noreferrer"

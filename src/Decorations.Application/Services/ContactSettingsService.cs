@@ -51,13 +51,15 @@ namespace Decorations.Application.Services
 
         private static void UpdateEntityFromDto(ContactSettings entity, ContactSettingsDto dto)
         {
-            entity.BusinessName = dto.BusinessName;
-            entity.WhatsAppNumber = dto.WhatsAppNumber;
-            entity.Email = dto.Email;
-            entity.InstagramUrl = dto.InstagramUrl;
-            entity.FacebookUrl = dto.FacebookUrl;
-            entity.Address = dto.Address;
-            entity.BusinessHours = dto.BusinessHours;
+            // El model binding convierte los campos vacíos del formulario en null;
+            // las columnas de la BD son NOT NULL, así que coalescemos a cadena vacía.
+            entity.BusinessName = dto.BusinessName ?? string.Empty;
+            entity.WhatsAppNumber = dto.WhatsAppNumber ?? string.Empty;
+            entity.Email = dto.Email ?? string.Empty;
+            entity.InstagramUrl = dto.InstagramUrl ?? string.Empty;
+            entity.FacebookUrl = dto.FacebookUrl ?? string.Empty;
+            entity.Address = dto.Address ?? string.Empty;
+            entity.BusinessHours = dto.BusinessHours ?? string.Empty;
         }
     }
 }
